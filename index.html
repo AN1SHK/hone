@@ -250,35 +250,22 @@
       <h2>Tune your arousal</h2>
       <div id="arousal-quiz" style="margin-top:16px">
         <div class="qz" data-q="0">
-          <label class="fl">Your body right now</label>
+          <label class="fl">Your energy right now</label>
           <div class="seg qopts">
-            <button data-v="1">Tense / restless</button>
-            <button data-v="0">Relaxed, alert</button>
-            <button data-v="-1">Heavy / tired</button>
+            <button data-v="2">Wired</button>
+            <button data-v="1">Tense</button>
+            <button data-v="0">Steady</button>
+            <button data-v="-1">Flat</button>
+            <button data-v="-2">Heavy</button>
           </div>
+          <div class="row spread" style="margin-top:6px"><span class="tiny">Over-amped</span><span class="tiny">Depleted</span></div>
         </div>
-        <div class="qz" data-q="1" style="margin-top:14px">
-          <label class="fl">Your mind right now</label>
+        <div class="qz" data-q="1" style="margin-top:16px">
+          <label class="fl">Sleep &amp; fuel today</label>
           <div class="seg qopts">
-            <button data-v="1">Racing, won't settle</button>
-            <button data-v="0">Clear &amp; steady</button>
-            <button data-v="-1">Foggy, hard to start</button>
-          </div>
-        </div>
-        <div class="qz" data-q="2" style="margin-top:14px">
-          <label class="fl">In the last hour</label>
-          <div class="seg qopts">
-            <button data-v="1">Stress / caffeine</button>
-            <button data-v="0">Nothing notable</button>
-            <button data-v="-1">Poor sleep / big meal</button>
-          </div>
-        </div>
-        <div class="qz" data-q="3" style="margin-top:14px">
-          <label class="fl">Sitting still right now would feel…</label>
-          <div class="seg qopts">
-            <button data-v="1">Hard — too restless</button>
-            <button data-v="0">Easy — settled</button>
-            <button data-v="-1">I'd start dozing</button>
+            <button data-v="0">Rested, fueled</button>
+            <button data-v="1">So-so</button>
+            <button data-v="2">Running on empty</button>
           </div>
         </div>
       </div>
@@ -457,7 +444,7 @@ function minutesLast(n){
 function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.length : 0; }
 
 /* ================= PRIME ================= */
-var chosenState=null, arousalAns={};
+var chosenState=null, dayCap=1, arousalAns={};
 function primeStep(n){
   [1,2,3].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
   $$("#prime-dots i").forEach(function(d,i){ d.classList.toggle("on", i<n); });
@@ -475,7 +462,7 @@ var PROTOCOLS={
 };
 function fmtMin(m){ return (m%1? m.toFixed(1):m)+" min"; }
 function resetArousal(){
-  arousalAns={}; chosenState=null;
+  arousalAns={}; chosenState=null; dayCap=1;
   $$("#arousal-quiz .qopts button").forEach(function(b){ b.classList.remove("on"); });
   $("#arousal-result").classList.add("hide");
   stopBreath();
@@ -485,12 +472,13 @@ $$("#arousal-quiz .qz").forEach(function(qz){
   opts.forEach(function(b){ b.addEventListener("click",function(){
     opts.forEach(function(x){x.classList.remove("on");}); b.classList.add("on");
     arousalAns[q]=+b.dataset.v;
-    if(Object.keys(arousalAns).length===4) scoreArousal();
+    if(Object.keys(arousalAns).length===2) scoreArousal();
   });});
 });
 function scoreArousal(){
-  var sum=(arousalAns[0]||0)+(arousalAns[1]||0)+(arousalAns[2]||0)+(arousalAns[3]||0);
-  chosenState = sum>=3?"veryhigh" : (sum===2?"high" : (sum<=-3?"verylow" : (sum===-2?"low" : "balanced")));
+  var a=arousalAns[0];
+  chosenState = a>=2?"veryhigh" : (a===1?"high" : (a===0?"balanced" : (a===-1?"low" : "verylow")));
+  dayCap = [1,0.9,0.75][arousalAns[1]] || 1;
   var p=PROTOCOLS[chosenState];
   $("#arousal-verdict").innerHTML="<b>"+p.label+"</b>";
   $("#breath-desc").textContent=p.name+" — "+p.desc;
@@ -578,8 +566,8 @@ function suggestDeep(){
     else if(!good) rec=Math.max(FLOOR, base-STEP);            // rated low -> ease back
     else rec=base;                                            // hold and consolidate
   }
-  var mult={veryhigh:0.7, high:0.85, balanced:1, low:0.85, verylow:0.7}[chosenState];  // how you feel today
-  if(mult) rec=rec*mult;
+  var aMult={veryhigh:0.7, high:0.85, balanced:1, low:0.85, verylow:0.7}[chosenState] || 1;  // arousal
+  rec = rec * Math.min(aMult, dayCap);   // capped by the more limiting of arousal or fuel
   return {min:Math.max(FLOOR, Math.min(CAP, Math.round(rec/5)*5))};
 }
 /* impulses caught mid-block = live meta-awareness reps, read from the Siri impulse log */
@@ -591,7 +579,7 @@ function startImpulseWatch(){
   clearInterval(deep.impInt);
   impulseKeys().then(function(keys){
     if(keys) keys.forEach(function(k){ deep.impKnown[k]=1; });
-    deep.impInt=setInterval(pollImpulse,10000);
+    deep.impInt=setInterval(pollImpulse,6000);
   });
 }
 function pollImpulse(){
@@ -599,7 +587,7 @@ function pollImpulse(){
   impulseKeys().then(function(keys){
     if(!keys) return;
     var n=0; keys.forEach(function(k){ if(!deep.impKnown[k]){ deep.impKnown[k]=1; deep.catches++; n++; } });
-    if(n){ updateCaught(); try{chime(660,0.08);}catch(e){} }
+    if(n){ updateCaught(); }
   });
 }
 function stopImpulseWatch(){ clearInterval(deep.impInt); }
@@ -621,9 +609,11 @@ function deepStop(early){
   deep.running=false; clearInterval(deep.int); stopImpulseWatch();
   var done=Math.round((deep.min*60-deep.left)/60);
   deep.actual= early? Math.max(1,done): deep.min;
-  var dc=$("#deep-done-caught"); if(dc) dc.textContent= deep.catches? ("You caught "+deep.catches+" urge"+(deep.catches>1?"s":"")+" to switch — logged, not obeyed.") : "";
+  function showCaught(){ var dc=$("#deep-done-caught"); if(dc) dc.textContent= deep.catches? ("You caught "+deep.catches+" urge"+(deep.catches>1?"s":"")+" to switch — logged, not obeyed.") : ""; }
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.remove("hide");
   chime(440,1.2);
+  showCaught();
+  impulseKeys().then(function(keys){ if(keys) keys.forEach(function(k){ if(!deep.impKnown[k]){ deep.impKnown[k]=1; deep.catches++; } }); showCaught(); });  // final sweep so a just-caught urge isn't missed
 }
 $$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; }); });
 var restTimer=0;
