@@ -400,7 +400,7 @@ function go(id){
   var el=$("#s-"+id); if(el) el.classList.add("on");
   $$("#nav button").forEach(function(b){b.classList.toggle("on", b.dataset.go===id);});
   window.scrollTo({top:0,behavior:"smooth"});
-  if(id==="home") renderHome();
+  if(id==="home"){ breakRunning=false; releaseWake(); renderHome(); }
   if(id==="prime"){ primeStep(1); }
   if(id==="deep"){ if(deep.running){ $("#deep-setup").classList.add("hide"); $("#deep-done").classList.add("hide"); $("#deep-restore").classList.add("hide"); $("#deep-run").classList.remove("hide"); } else resetDeepUI(); }
 }
@@ -428,6 +428,10 @@ function alarm(){
   }
 }
 document.addEventListener("click", stopAlarm);   // any tap back in silences it
+var wakeLock=null, breakRunning=false;
+function requestWake(){ try{ if(navigator.wakeLock) navigator.wakeLock.request("screen").then(function(w){wakeLock=w;}).catch(function(){}); }catch(e){} }
+function releaseWake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(e){} }
+document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible" && (deep.running||breakRunning)) requestWake(); });
 function notify(body){ try{ if(window.Notification && Notification.permission==="granted") new Notification("HONE",{body:body}); }catch(e){} }
 function askNotify(){ try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){} }
 
@@ -631,7 +635,7 @@ function deepStart(){
   $("#deep-clock").textContent=fmt(deep.left);
   showTopbar(); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left); askNotify();
   startImpulseWatch();
-  publishTimer();
+  publishTimer(); requestWake();
   deep.int=setInterval(function(){
     deep.left--; $("#deep-clock").textContent=fmt(deep.left); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left);
     if(!deep.mid && deep.left<=deep.min*60/2){ deep.mid=true; toast("Halfway. Re‑read your intention, then keep going — don't switch tasks."); }
@@ -655,13 +659,13 @@ function rateLabel(r){ return r<=2?"Scattered":r<=4?"Distracted":r<=6?"Steady":r
 $$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; var rl=$("#rate-label"); if(rl) rl.textContent=deep.rating+" · "+rateLabel(deep.rating); }); });
 var restTimer=0;
 function startRestore(){
-  clearInterval(restTimer);
+  clearInterval(restTimer); breakRunning=true; requestWake();
   var mins=Math.min(20,Math.max(5,Math.round((deep.actual||50)/5)));
   var end=Date.now()+mins*60000;
   var ab=$("#another-block"); if(ab) ab.disabled=true;
   function tick(){
     var left=(end-Date.now())/1000;
-    if(left<=0){ clearInterval(restTimer); if($("#rest-clock"))$("#rest-clock").textContent="00:00"; if($("#rest-label"))$("#rest-label").textContent="Reset complete — go again if you want."; if(ab) ab.disabled=false; alarm(); notify("Break's over — start your next block."); return; }
+    if(left<=0){ clearInterval(restTimer); if($("#rest-clock"))$("#rest-clock").textContent="00:00"; if($("#rest-label"))$("#rest-label").textContent="Reset complete — go again if you want."; if(ab) ab.disabled=false; breakRunning=false; releaseWake(); alarm(); notify("Break's over — start your next block."); return; }
     if($("#rest-clock"))$("#rest-clock").textContent=fmt(left);
   }
   tick(); restTimer=setInterval(tick,1000);
