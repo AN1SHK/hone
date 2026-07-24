@@ -179,9 +179,7 @@
     <nav id="nav">
       <button data-go="home" class="on">Home</button>
       <button data-go="prime">Session</button>
-      <button data-go="test">Test</button>
       <button data-go="progress">Progress</button>
-      <button data-go="science">Science</button>
     </nav>
   </div>
 </header>
@@ -193,31 +191,15 @@
   <div class="card" style="margin-top:20px">
     <div class="row">
       <button class="btn primary lg" data-go="prime">Start today's session →</button>
-      <button class="btn lg" data-go="test">Quick sharpness test</button>
     </div>
   </div>
 
-  <div class="grid g3" style="margin-top:16px">
-    <div class="stat"><div class="k">Sharpness</div><div class="v" id="h-sharp">—</div><div class="delta" id="h-sharp-d"></div></div>
+  <div class="grid g2" style="margin-top:16px">
     <div class="stat"><div class="k">Focus minutes (7d)</div><div class="v" id="h-min">—</div><div class="delta muted" id="h-min-sub"></div></div>
     <div class="stat"><div class="k">Meta‑awareness</div><div class="v" id="h-cpm">—</div><div class="delta muted">catches / min</div></div>
   </div>
 
-  <div class="card" style="margin-top:16px">
-    <h3>Sharpness trend</h3>
-    <div id="h-chart"></div>
-  </div>
-
-  <div class="card">
-    <h3>The daily loop</h3>
-    <div class="grid g3">
-      <div><div class="chip">1 · Weigh‑in</div><p class="tiny" style="margin-top:8px">A 2‑min reaction test scores your vigilance today — sensitive to sleep and fatigue.</p></div>
-      <div><div class="chip">2 · Prime</div><p class="tiny" style="margin-top:8px">Set an intention, clear residue, breathe to the right arousal level.</p></div>
-      <div><div class="chip">3 · Train</div><p class="tiny" style="margin-top:8px">Focus, and tap every time you catch your mind wandering. That's the rep.</p></div>
-    </div>
-    <p class="why"><b>Why this order:</b> you can't improve what you don't measure, and you can't focus deeply from a scattered state. Measure → shift state → train.</p>
-  </div>
-</section>
+  </section>
 
 <!-- ============ PRIME / SESSION ============ -->
 <section class="screen" id="s-prime">
@@ -229,9 +211,8 @@
       <h2>Set your intention</h2>
       <p class="sub">One clear outcome and a pre‑decided response beats willpower. This is the single most evidence‑backed step here.</p>
       <div style="margin-top:18px">
-        <div class="field"><label class="fl">The one outcome for this block</label><input type="text" id="in-outcome" placeholder="e.g. Draft the intro section of the report"></div>
-        <div class="field"><label class="fl">First concrete action (make it tiny)</label><input type="text" id="in-first" placeholder="e.g. Open the doc and write one bad sentence"></div>
-        <div class="field"><label class="fl">If I feel the urge to drift, then I will…</label><input type="text" id="in-ifthen" value="take one slow breath and return to the first action"></div>
+        <div class="field"><label class="fl">Outcome</label><input type="text" id="in-outcome" placeholder=""></div>
+        <div class="field"><label class="fl">First tiny action</label><input type="text" id="in-first" placeholder=""></div>
       </div>
       <p class="why"><b>Implementation intentions</b> (if‑then plans) roughly double goal follow‑through — Gollwitzer &amp; Sheeran, d = 0.65.</p>
       <div class="row" style="margin-top:18px"><button class="btn primary" onclick="primeStep(2)">Next →</button></div>
@@ -307,7 +288,7 @@
 
   <div class="card hide" id="train-done" style="margin-top:20px;text-align:center">
     <h2>Rep logged 💪</h2>
-    <div class="grid g3" style="margin-top:16px">
+    <div class="grid g2" style="margin-top:16px">
       <div class="stat"><div class="k">Minutes</div><div class="v" id="td-min">0</div></div>
       <div class="stat"><div class="k">Catches</div><div class="v" id="td-catch">0</div></div>
       <div class="stat"><div class="k">Per minute</div><div class="v" id="td-cpm">0</div></div>
@@ -373,42 +354,6 @@
   </div>
 </section>
 
-<!-- ============ TEST (PVT-B) ============ -->
-<section class="screen" id="s-test">
-  <div class="card" style="margin-top:20px" id="test-setup">
-    <h2>Sharpness test</h2>
-    <p class="sub">A reaction‑vigilance task adapted from the <b>PVT‑B</b>, the lab standard for sustained attention. When the circle appears, tap as fast as you can. Sometimes it's slow to come — don't jump the gun.</p>
-    <label class="fl" style="margin-top:18px">Duration</label>
-    <div class="seg" id="test-dur">
-      <button data-sec="120" class="on">2 min</button>
-      <button data-sec="180">3 min (full)</button>
-      <button data-sec="60">1 min (quick)</button>
-    </div>
-    <p class="why"><b>Why this test:</b> reaction‑vigilance has almost no practice effect — so a rising score is real change, not you learning the game. It's the most fatigue‑sensitive measure in the lab.</p>
-    <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="pvtStart()">Start test</button></div>
-    <p class="tiny" style="margin-top:12px">Tap the stage or press <span class="kbd">Space</span>. Best on a laptop/desktop for accurate timing.</p>
-  </div>
-
-  <div class="card hide" id="test-run" style="margin-top:20px">
-    <div class="row spread" style="margin-bottom:12px"><span class="chip" id="pvt-left">—</span><span class="chip" id="pvt-count">0 reactions</span></div>
-    <div class="stage wait" id="stage"><div><div class="hint" id="stage-hint">Wait for the circle… then tap.</div></div></div>
-  </div>
-
-  <div class="card hide" id="test-done" style="margin-top:20px;text-align:center">
-    <h2>Your sharpness</h2>
-    <div class="stat" style="max-width:280px;margin:14px auto 0;text-align:center">
-      <div class="k">Sharpness score</div><div class="v" id="pvt-sharp" style="font-size:52px">0</div><div class="delta" id="pvt-sharp-d"></div>
-    </div>
-    <div class="grid g3" style="margin-top:16px">
-      <div class="stat"><div class="k">Median reaction</div><div class="v" id="pvt-median">0<small>ms</small></div></div>
-      <div class="stat"><div class="k">Lapses</div><div class="v" id="pvt-lapses">0</div><div class="tiny">reactions &gt; 355ms</div></div>
-      <div class="stat"><div class="k">False starts</div><div class="v" id="pvt-fs">0</div><div class="tiny">jumped too early</div></div>
-    </div>
-    <p class="muted" id="pvt-msg" style="margin-top:16px"></p>
-    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary" data-go="prime">Prime &amp; train →</button><button class="btn" data-go="progress">See progress</button></div>
-  </div>
-</section>
-
 <!-- ============ PROGRESS ============ -->
 <section class="screen" id="s-progress">
   <div class="card" style="margin-top:20px">
@@ -419,41 +364,8 @@
       <div class="stat"><div class="k">Streak</div><div class="v" id="p-streak">0</div></div>
     </div>
   </div>
-  <div class="card"><h3>Sharpness over time <span class="tiny" style="text-transform:none;letter-spacing:0">— higher is better</span></h3><div id="p-chart-sharp"></div></div>
   <div class="card"><h3>Deep‑work minutes <span class="tiny" style="text-transform:none;letter-spacing:0">— last 14 days</span></h3><div id="p-chart-min"></div></div>
   <div class="card"><h3>Meta‑awareness <span class="tiny" style="text-transform:none;letter-spacing:0">— catches per minute; trending down = fewer wanders</span></h3><div id="p-chart-cpm"></div></div>
-</section>
-
-<!-- ============ SCIENCE ============ -->
-<section class="screen" id="s-science">
-  <div class="card" style="margin-top:20px">
-    <h2>What's real, and what isn't</h2>
-    <p class="sub">Every feature here is tagged by evidence strength. This category has a history of overclaiming — we'd rather show our work.</p>
-  </div>
-  <div class="card">
-    <h3>The engine — build on these</h3>
-    <div class="evi"><div class="t">Focused‑attention meditation <span class="tag strong">Strong</span></div><p>The most replicated attention intervention in healthy adults. 12–20 min/day, ~5×/week, 4+ weeks. Reduces mind‑wandering, protects working memory. <span class="muted">Jha 2015; Mrazek 2013; Tang 2007.</span></p></div>
-    <div class="evi"><div class="t">Meta‑awareness — catch &amp; return <span class="tag mod">Active ingredient</span></div><p>Noticing the drift and returning is the isolable sub‑skill that mediates the gains. It's what the trainer's "Caught it" button drills. <span class="muted">Schooler 2011; Mrazek 2013.</span></p></div>
-    <div class="evi"><div class="t">Implementation intentions <span class="tag strong">Strong</span></div><p>Pre‑deciding an if‑then plan roughly doubles follow‑through. d = 0.65 across 94 studies. <span class="muted">Gollwitzer &amp; Sheeran 2006.</span></p></div>
-    <div class="evi"><div class="t">Attention‑residue control <span class="tag strong">Strong</span></div><p>An unfinished prior task bleeds into the next. Clean breaks and closure notes remove it. <span class="muted">Leroy 2009.</span></p></div>
-    <div class="evi"><div class="t">Goal‑reactivation breaks <span class="tag mod">Moderate</span></div><p>Brief disengagement resets the vigilance decrement better than pushing through. <span class="muted">Ariga &amp; Lleras 2011.</span></p></div>
-  </div>
-  <div class="card">
-    <h3>State shifters — same‑session levers</h3>
-    <div class="evi"><div class="t">Cyclic sighing (long exhale) <span class="tag mod">Moderate</span></div><p>Extended‑exhale breathing down‑regulates a wired state fast; beat other patterns and meditation for mood in a Stanford RCT. <span class="muted">Balban 2023, Cell Reports Medicine.</span></p></div>
-    <div class="evi"><div class="t">Acute exercise <span class="tag strong">Strong (small)</span></div><p>A brisk 10–20 min lifts a groggy, under‑aroused brain into range. <span class="muted">Chang 2012; 2024 meta.</span></p></div>
-    <div class="evi"><div class="t">Sleep <span class="tag strong">Strongest moderator</span></div><p>Vigilant attention is the cognitive function most wrecked by sleep loss. The test will catch it. <span class="muted">Lim &amp; Dinges 2010.</span></p></div>
-  </div>
-  <div class="card">
-    <h3>Optional / plausible — offered, not oversold</h3>
-    <div class="evi"><div class="t">Visual anchor (narrow gaze) <span class="tag opt">Unproven ritual</span></div><p>Mechanistically plausible via arousal, but no direct trial shows a fixation boosts later focus. We keep it as a low‑cost ritual, not a claim.</p></div>
-    <div class="evi"><div class="t">Amplitude‑modulated "focus music" <span class="tag opt">Emerging</span></div><p>Better evidence than binaural beats, mostly for high‑distractibility users. <span class="muted">Comms Biology 2024.</span></p></div>
-  </div>
-  <div class="card">
-    <h3>What we deliberately avoid</h3>
-    <div class="evi"><div class="t">Generic brain‑games / dual n‑back <span class="tag avoid">Weak transfer</span></div><p>You get better at the game, not at life. Lumosity paid a $2M FTC settlement over exactly this claim. <span class="muted">Simons 2016; FTC 2016.</span></p></div>
-    <div class="evi"><div class="t">Binaural beats · 40 Hz · the "90‑min clock" · flow‑hacking cocktails <span class="tag avoid">Lore</span></div><p>Weak, null, or marketing. We won't headline features on them.</p></div>
-  </div>
 </section>
 
 </div>
@@ -496,7 +408,6 @@ function go(id){
   if(id==="home") renderHome();
   if(id==="progress") renderProgress();
   if(id==="prime"){ primeStep(1); }
-  if(id==="test"){ resetTestUI(); }
   if(id==="train"){ resetTrainUI(); }
   if(id==="deep"){ resetDeepUI(); }
 }
@@ -539,18 +450,11 @@ function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; re
 function renderHome(){
   var _g=$("#greeting"); if(_g) _g.textContent = greet();
   var _s=$("#streak"); if(_s) _s.textContent = streak();
-  var last=state.tests[state.tests.length-1];
-  $("#h-sharp").textContent = last? last.sharp : "—";
-  if(state.tests.length>=2){
-    var prev=state.tests[state.tests.length-2].sharp, d=last.sharp-prev;
-    var e=$("#h-sharp-d"); e.textContent=(d>=0?"▲ +":"▼ ")+d+" vs last"; e.className="delta "+(d>0?"up":d<0?"down":"flat");
-  } else $("#h-sharp-d").textContent="";
   var mins=minutesLast(7);
   $("#h-min").textContent = mins;
-  $("#h-min-sub").textContent = state.deep.length+" blocks all‑time";
+  $("#h-min-sub").textContent = state.deep.length+" blocks all-time";
   var cpm = state.trains.length? (avg(state.trains.map(function(t){return t.cpm;})).toFixed(1)) : "—";
   $("#h-cpm").textContent = cpm;
-  $("#h-chart").innerHTML = state.tests.length? lineChart(state.tests.map(function(t){return t.sharp;}),{max:100,min:0,fmt:function(v){return v;}}) : emptyBox("Take a sharpness test to start your trend.");
 }
 function greet(){ var h=new Date().getHours(); var g=h<12?"Good morning.":h<18?"Good afternoon.":"Good evening."; return g+" Train your attention."; }
 function minutesLast(n){
@@ -732,100 +636,12 @@ function deepSave(){
   $("#deep-done").classList.add("hide"); $("#deep-restore").classList.remove("hide");
 }
 
-/* ================= PVT-B TEST ================= */
-var pvt={dur:120,running:false,startedAt:0,onset:0,waiting:false,showing:false,rts:[],fs:0,to:0,raf:0,endTo:0};
-$$("#test-dur button").forEach(function(b){ b.addEventListener("click",function(){ $$("#test-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); pvt.dur=+b.dataset.sec; }); });
-function resetTestUI(){ $("#test-setup").classList.remove("hide"); $("#test-run").classList.add("hide"); $("#test-done").classList.add("hide"); }
-function pvtStart(){
-  pvt.running=true; pvt.rts=[]; pvt.fs=0; pvt.startedAt=performance.now();
-  $("#test-setup").classList.add("hide"); $("#test-run").classList.remove("hide"); $("#test-done").classList.add("hide");
-  $("#pvt-count").textContent="0 reactions";
-  pvtSchedule();
-  pvtLeftTick();
-}
-function pvtLeftTick(){
-  if(!pvt.running) return;
-  var left=pvt.dur-(performance.now()-pvt.startedAt)/1000;
-  $("#pvt-left").textContent=fmt(left)+" left";
-  if(left<=0){ pvtFinish(); return; }
-  pvt.leftTo=setTimeout(pvtLeftTick,250);
-}
-function pvtSchedule(){
-  if(!pvt.running) return;
-  if((performance.now()-pvt.startedAt)/1000>=pvt.dur){ pvtFinish(); return; }
-  pvt.waiting=true; pvt.showing=false;
-  var st=$("#stage"); st.className="stage wait"; st.innerHTML='<div><div class="hint">Wait…</div></div>';
-  var isi=1000+Math.random()*3000; // 1–4s
-  pvt.to=setTimeout(pvtShow,isi);
-}
-function pvtShow(){
-  if(!pvt.running) return;
-  pvt.waiting=false; pvt.showing=true; pvt.onset=performance.now();
-  var st=$("#stage"); st.className="stage go"; st.innerHTML='<div><div class="dotpulse"></div><div class="num" id="rtnum">0</div></div>';
-  var num=$("#rtnum");
-  function up(){ if(!pvt.showing) return; num.textContent=Math.round(performance.now()-pvt.onset); pvt.raf=requestAnimationFrame(up); }
-  pvt.raf=requestAnimationFrame(up);
-}
-function pvtRespond(){
-  if(!pvt.running) return;
-  if(pvt.waiting){ // false start
-    clearTimeout(pvt.to); pvt.fs++;
-    var st=$("#stage"); st.className="stage soon"; st.innerHTML='<div><div class="big">Too soon ✋</div><div class="hint">Wait for the circle.</div></div>';
-    setTimeout(pvtSchedule,700); pvt.waiting=false; return;
-  }
-  if(pvt.showing){
-    var rt=performance.now()-pvt.onset; pvt.showing=false; cancelAnimationFrame(pvt.raf);
-    pvt.rts.push(rt);
-    var col= rt<250?"var(--green)": rt<355?"var(--acc)": "var(--amber)";
-    var st=$("#stage"); st.className="stage wait";
-    st.innerHTML='<div><div class="num" style="color:'+col+'">'+Math.round(rt)+'<span style="font-size:22px">ms</span></div>'+(rt>355?'<div class="hint">lapse — stay with it</div>':'')+'</div>';
-    $("#pvt-count").textContent=pvt.rts.length+" reactions";
-    setTimeout(pvtSchedule,500+Math.random()*400);
-  }
-}
-$("#stage")&&$("#stage").addEventListener("mousedown",function(e){e.preventDefault();pvtRespond();});
-$("#stage")&&$("#stage").addEventListener("touchstart",function(e){e.preventDefault();pvtRespond();},{passive:false});
-document.addEventListener("keydown",function(e){
-  if(e.code==="Space" && $("#s-test").classList.contains("on") && pvt.running){ e.preventDefault(); pvtRespond(); }
-});
-function median(a){ if(!a.length) return 0; var s=a.slice().sort(function(x,y){return x-y;}); var m=Math.floor(s.length/2); return s.length%2? s[m] : (s[m-1]+s[m])/2; }
-function pvtFinish(){
-  pvt.running=false; clearTimeout(pvt.to); clearTimeout(pvt.leftTo); cancelAnimationFrame(pvt.raf);
-  var valid=pvt.rts.filter(function(r){return r>=100 && r<3000;});
-  var med=Math.round(median(valid));
-  var lapses=valid.filter(function(r){return r>355;}).length;
-  // sharpness: 60% speed, 40% (lapses+false starts)
-  var rtScore=clamp(map(med,520,220,0,100),0,100);
-  var errScore=clamp(100-(lapses*7)-(pvt.fs*5),0,100);
-  var sharp=Math.round(rtScore*0.6+errScore*0.4);
-  if(!valid.length) sharp=0;
-  state.tests.push({t:Date.now(),sharp:sharp,median:med,lapses:lapses,fs:pvt.fs,n:valid.length});
-  markDay(); save();
-  $("#test-run").classList.add("hide"); $("#test-done").classList.remove("hide");
-  $("#pvt-sharp").textContent=sharp; $("#pvt-median").innerHTML=med+'<small>ms</small>';
-  $("#pvt-lapses").textContent=lapses; $("#pvt-fs").textContent=pvt.fs;
-  var d=$("#pvt-sharp-d");
-  if(state.tests.length>=2){ var prev=state.tests[state.tests.length-2].sharp, diff=sharp-prev; d.textContent=(diff>=0?"▲ +":"▼ ")+diff+" vs last"; d.className="delta "+(diff>0?"up":diff<0?"down":"flat"); }
-  else d.textContent="Baseline set. Test at the same time of day to compare fairly.";
-  $("#pvt-msg").textContent= interpret(sharp,lapses,pvt.fs);
-}
-function interpret(s,l,fs){
-  if(fs>=4) return "Lots of early taps — you're anticipating, not reacting. Wait for the circle; it makes the score real.";
-  if(s>=80) return "Sharp. Vigilance is high — a good day to attempt your hardest, longest block.";
-  if(s>=60) return "Solid. You're in range. Prime well and you'll focus fine.";
-  if(l>=5) return "Several lapses — a fatigue signature. Consider sleep, a short walk, or a shorter block today.";
-  return "On the low side today. That's information, not failure — arousal or sleep is likely down. Prime, then keep the block modest.";
-}
-function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
-function map(v,inLo,inHi,outLo,outHi){ return outLo+(v-inLo)*(outHi-outLo)/(inHi-inLo); }
-
 /* ================= PROGRESS ================= */
 function renderProgress(){
   $("#p-sessions").textContent=state.trains.length+state.deep.length;
   var total=0; state.deep.forEach(function(d){total+=d.min;}); state.trains.forEach(function(d){total+=d.min;});
   $("#p-minutes").textContent=total;
   $("#p-streak").textContent=streak();
-  $("#p-chart-sharp").innerHTML = state.tests.length? lineChart(state.tests.map(function(t){return t.sharp;}),{max:100,min:0}) : emptyBox("No tests yet.");
   $("#p-chart-min").innerHTML = barChart(last14Minutes());
   var cpm=state.trains.map(function(t){return t.cpm;});
   $("#p-chart-cpm").innerHTML = cpm.length? lineChart(cpm,{min:0,max:Math.max(3,Math.ceil(Math.max.apply(null,cpm))),accent:"var(--violet)"}) : emptyBox("No training sessions yet.");
