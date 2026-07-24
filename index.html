@@ -621,6 +621,9 @@ function pollImpulse(){
   });
 }
 function stopImpulseWatch(){ clearInterval(deep.impInt); }
+var TIMER_URL="https://my-schedule-a0ded-default-rtdb.firebaseio.com/hone_timer.json";
+function publishTimer(){ try{ fetch(TIMER_URL,{method:"PUT",body:JSON.stringify({end:Date.now()+deep.left*1000,task:($("#in-outcome")&&$("#in-outcome").value.trim())||"deep work"})}).catch(function(){}); }catch(e){} }
+function clearTimer(){ try{ fetch(TIMER_URL,{method:"PUT",body:"null"}).catch(function(){}); }catch(e){} }
 function deepStart(){
   clearInterval(deep.int);   // never stack timers
   deep.left=deep.min*60; deep.parks=[]; deep.rating=0; deep.mid=false; deep.running=true;
@@ -629,6 +632,7 @@ function deepStart(){
   $("#deep-clock").textContent=fmt(deep.left);
   showTopbar(); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left); askNotify();
   startImpulseWatch();
+  publishTimer();
   deep.int=setInterval(function(){
     deep.left--; $("#deep-clock").textContent=fmt(deep.left); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left);
     if(!deep.mid && deep.left<=deep.min*60/2){ deep.mid=true; toast("Halfway. Re‑read your intention, then keep going — don't switch tasks."); }
@@ -637,7 +641,7 @@ function deepStart(){
 }
 function deepStop(early){
   if(!deep.running) return;   // guard against re-entry / orphaned ticks
-  deep.running=false; clearInterval(deep.int); stopImpulseWatch(); hideTopbar();
+  deep.running=false; clearInterval(deep.int); stopImpulseWatch(); hideTopbar(); clearTimer();
   var done=Math.round((deep.min*60-deep.left)/60);
   deep.actual= early? Math.max(1,done): deep.min;
   function showCaught(){ var dc=$("#deep-done-caught"); if(dc) dc.textContent= deep.catches? ("You caught "+deep.catches+" urge"+(deep.catches>1?"s":"")+" to switch — logged, not obeyed.") : ""; }
