@@ -188,7 +188,7 @@
 <section class="screen on" id="s-home">
   <div class="card" style="margin-top:20px">
     <div class="row">
-      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button>
+      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button><button class="btn lg" data-go="deep" style="text-transform:uppercase;letter-spacing:1px">Quick block</button>
     </div>
   </div>
 
@@ -238,7 +238,6 @@
     <!-- step 3: arousal + breathing -->
     <div id="prime-3" class="hide">
       <h2>Tune your arousal</h2>
-      <p class="sub">Your own read on this is unreliable — answer three quick questions and I'll match the exact breathing to bring you to the focused middle.</p>
       <div id="arousal-quiz" style="margin-top:16px">
         <div class="qz" data-q="0">
           <label class="fl">Your body right now</label>
@@ -264,6 +263,14 @@
             <button data-v="-1">Poor sleep / big meal</button>
           </div>
         </div>
+        <div class="qz" data-q="3" style="margin-top:14px">
+          <label class="fl">Your breath &amp; heart right now</label>
+          <div class="seg qopts">
+            <button data-v="1">Fast or shallow</button>
+            <button data-v="0">Normal</button>
+            <button data-v="-1">Slow, sleepy</button>
+          </div>
+        </div>
       </div>
       <div id="arousal-result" class="hide" style="margin-top:20px">
         <p class="muted" id="arousal-verdict" style="text-align:center;font-size:15px"></p>
@@ -279,7 +286,7 @@
           <div id="move-note" class="hide"><p class="tiny" style="text-align:center;margin-top:2px">Even better for a flat state: a brisk 2–5 min walk or jumping jacks, then start.</p></div>
         </div>
       </div>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">← Back</button><button class="btn primary" onclick="primeDone()">I'm primed → train</button></div>
+      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">← Back</button><button class="btn primary" onclick="primeDone()">Train</button></div>
     </div>
   </div>
 </section>
@@ -288,7 +295,6 @@
 <section class="screen" id="s-train">
   <div class="card" style="margin-top:20px" id="train-setup">
     <h2>Train the muscle</h2>
-    <p class="sub">Rest your attention on your breath. The instant you notice it has wandered — a thought, a plan, a memory — tap <b>Caught it</b> and gently return. Every catch is a rep. This is the exact skill that transfers.</p>
     <label class="fl" style="margin-top:18px">Session length</label>
     <div class="seg" id="train-dur">
       <button data-min="3">3 min</button>
@@ -297,7 +303,6 @@
       <button data-min="15">15 min</button>
       <button data-min="20">20 min</button>
     </div>
-    <p class="tiny" id="train-suggest" style="margin-top:12px"></p>
     <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="trainStart()">Begin</button><label class="chip" style="cursor:pointer"><input type="checkbox" id="train-sound" checked style="width:auto;accent-color:var(--acc)"> chime</label></div>
   </div>
 
@@ -310,14 +315,13 @@
   </div>
 
   <div class="card hide" id="train-done" style="margin-top:20px;text-align:center">
-    <h2>Rep logged 💪</h2>
+    <h2>Rep logged</h2>
     <div class="grid g2" style="margin-top:16px">
       <div class="stat"><div class="k">Minutes</div><div class="v" id="td-min">0</div></div>
       <div class="stat"><div class="k">Catches</div><div class="v" id="td-catch">0</div></div>
       <div class="stat"><div class="k">Per minute</div><div class="v" id="td-cpm">0</div></div>
     </div>
-    <p class="muted" id="td-msg" style="margin-top:16px"></p>
-    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" data-go="deep">Now do deep work →</button><button class="btn" data-go="home">Home</button></div>
+    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" data-go="deep">Deep Work</button></div>
   </div>
 </section>
 
@@ -325,7 +329,6 @@
 <section class="screen" id="s-deep">
   <div class="card hide" id="deep-setup" style="margin-top:20px">
     <h2>Deep‑work block</h2>
-    <p class="sub">Now spend your primed state on the real thing. One task. Distractions get <b>parked, not chased</b>.</p>
     <div class="card" style="background:var(--bg2);margin-top:16px" id="deep-intent-box">
       <div class="tiny">YOUR INTENTION</div>
       <div id="deep-outcome" style="font-size:18px;font-weight:700;margin-top:4px">—</div>
@@ -376,7 +379,7 @@
       <div class="ringtimer" id="rest-clock">05:00</div>
       <div class="tiny" id="rest-label" style="margin-top:4px">The break <b>is</b> the reset — walk, daylight, or NSDR. "Another block" unlocks when it's done.</div>
     </div>
-    <div class="row" style="margin-top:16px"><button class="btn primary" data-go="home">Done for now</button><button class="btn" id="another-block" data-go="prime" disabled>Another block</button></div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" data-go="home">Done for now</button><button class="btn" id="another-block" data-go="deep" disabled>Another block</button></div>
   </div>
 </section>
 
@@ -481,9 +484,11 @@ $$("#residue li").forEach(function(li){ li.addEventListener("click",function(){ 
 
 /* arousal questionnaire -> matched, time-bounded breathing protocol */
 var PROTOCOLS={
-  wired:{ label:"You're wired — let's down-shift.", name:"Cyclic sighing", desc:"Two inhales through the nose, then a long, slow exhale through the mouth.", why:"Extended exhales raise vagal tone and drop heart rate — the fastest way to calm a stressed system (Balban 2023, Stanford RCT). ~3 min gives a clear acute shift.", minutes:3, phases:[["Inhale",1800],["Inhale a bit more",1000],["Long exhale…",6000]] },
-  neutral:{ label:"You're about right — let's lock it in.", name:"Coherent breathing", desc:"Smooth and even: in for 4, out for 6.", why:"~5–6 breaths a minute peaks heart-rate variability — the signature of the calm-alert middle of the arousal curve. A minute settles you in.", minutes:1.5, phases:[["Inhale",4000],["Exhale",6000]] },
-  groggy:{ label:"You're flat — let's lift you.", name:"Energizing breath", desc:"Brisker, inhale-led breathing to raise alertness. Stop if you feel lightheaded.", why:"Faster, inhale-emphasized breathing nudges sympathetic activity up — the opposite lever from calming. Keep it short; a brisk walk works even better.", minutes:2, phases:[["Brisk inhale",1400],["Short exhale",1400]] }
+  veryhigh:{ label:"Very wired — let's pull the brake hard.", name:"Cyclic sighing", desc:"Two inhales through the nose, then a long, slow exhale through the mouth.", why:"The physiological sigh is the fastest way to calm an activated system (Balban 2023, Stanford RCT). ~3 min for a clear shift.", minutes:3, phases:[["Inhale",1800],["Inhale a bit more",1000],["Long exhale…",6000]] },
+  high:{ label:"Wired — let's down-shift.", name:"4-7-8 breathing", desc:"In through the nose for 4, hold for 7, out through pursed lips for 8.", why:"A long exhale plus a hold pulls hard on the parasympathetic brake — deep, deliberate calm (Weil).", minutes:3, phases:[["Inhale",4000],["Hold",7000],["Exhale slowly",8000]] },
+  balanced:{ label:"About right — let's lock it in.", name:"Coherent breathing", desc:"Smooth and even: in for 5, out for 5.", why:"~6 breaths a minute peaks heart-rate variability — the signature of the calm-alert middle of the arousal curve.", minutes:1.5, phases:[["Inhale",5000],["Exhale",5000]] },
+  low:{ label:"A bit flat — let's lift you.", name:"Energizing breath", desc:"Brisker, even breathing to raise alertness. Stop if you feel lightheaded.", why:"Faster breathing nudges sympathetic activity up — the opposite lever from calming. A brisk walk works too.", minutes:2, phases:[["Brisk inhale",1200],["Brisk exhale",1200]] },
+  verylow:{ label:"Heavy — let's fire you up.", name:"Bellows breath", desc:"Rapid, active breaths through the nose — short and sharp. Sit down; skip if pregnant or with heart/BP issues.", why:"Rapid, forceful breathing strongly raises arousal to shake off heaviness. Keep it short, then get daylight or move.", minutes:1.5, phases:[["Quick inhale",700],["Quick exhale",700]] }
 };
 function fmtMin(m){ return (m%1? m.toFixed(1):m)+" min"; }
 function resetArousal(){
@@ -497,17 +502,17 @@ $$("#arousal-quiz .qz").forEach(function(qz){
   opts.forEach(function(b){ b.addEventListener("click",function(){
     opts.forEach(function(x){x.classList.remove("on");}); b.classList.add("on");
     arousalAns[q]=+b.dataset.v;
-    if(Object.keys(arousalAns).length===3) scoreArousal();
+    if(Object.keys(arousalAns).length===4) scoreArousal();
   });});
 });
 function scoreArousal(){
-  var sum=(arousalAns[0]||0)+(arousalAns[1]||0)+(arousalAns[2]||0);
-  chosenState= sum>=2?"wired" : (sum<=-2?"groggy":"neutral");
+  var sum=(arousalAns[0]||0)+(arousalAns[1]||0)+(arousalAns[2]||0)+(arousalAns[3]||0);
+  chosenState = sum>=3?"veryhigh" : (sum===2?"high" : (sum<=-3?"verylow" : (sum===-2?"low" : "balanced")));
   var p=PROTOCOLS[chosenState];
   $("#arousal-verdict").innerHTML="<b>"+p.label+"</b>";
   $("#breath-desc").textContent=p.name+" — "+p.desc;
   $("#breath-why").textContent=p.why;
-  $("#move-note").classList.toggle("hide", chosenState!=="groggy");
+  $("#move-note").classList.toggle("hide", !(chosenState==="low"||chosenState==="verylow"));
   $("#orb-phase").textContent="Ready"; $("#orb-cd").textContent="";
   $("#breath-btn").textContent="Begin breathing · "+fmtMin(p.minutes);
   $("#arousal-result").classList.remove("hide");
@@ -567,7 +572,6 @@ function resetTrainUI(){
   $("#train-run").classList.add("hide");
   $("#train-done").classList.add("hide");
   var s=suggestTrain();
-  $("#train-suggest").innerHTML=s.html;
   train.dur=s.min;
   $$("#train-dur button").forEach(function(x){ x.classList.toggle("on", +x.dataset.min===s.min); });
 }
@@ -635,9 +639,6 @@ function trainStop(early){
   markDay(); save();
   $("#train-run").classList.add("hide"); $("#train-done").classList.remove("hide");
   $("#td-min").textContent=Math.round(mins); $("#td-catch").textContent=train.catches; $("#td-cpm").textContent=cpm;
-  $("#td-msg").innerHTML = train.catches===0
-     ? "Zero catches can mean deep focus — or that you didn't notice the drifts. Over time, watch this number <b>rise then fall</b>: first you see more wanders, then you have fewer."
-     : "You caught your mind "+train.catches+" times and returned each one. That return is the entire skill. Streak: <b>"+streak()+" days</b>.";
 }
 
 /* ================= DEEP WORK ================= */
