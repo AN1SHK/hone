@@ -64,7 +64,7 @@
   .why b{color:var(--tx)}
 
   /* Buttons */
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font-weight:600;font-size:14px;padding:12px 18px;border-radius:6px;transition:.15s;background:#fff;color:var(--tx);border:1px solid var(--line2)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font-weight:600;font-size:14px;padding:12px 18px;border-radius:6px;transition:.15s;background:#fff;color:var(--tx);border:1px solid var(--line2);text-transform:uppercase;letter-spacing:.5px}
   .btn:hover{border-color:var(--mut);background:var(--bg2)}
   .btn.primary{background:var(--acc);color:#fbfaf6;border:1px solid var(--acc)}
   .btn.primary:hover{background:#3a434e;border-color:#3a434e}
@@ -73,6 +73,7 @@
   .btn.wide{width:100%}
   .btn.lg{padding:14px 22px;font-size:15px}
   .btn:disabled{opacity:.4;cursor:not-allowed}
+  .seg button{text-transform:uppercase;letter-spacing:.3px}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .spread{justify-content:space-between}
 
@@ -126,12 +127,6 @@
   .orb .phase{font-size:19px;font-weight:700;letter-spacing:.3px;color:var(--tx)}
   .orb .cd{font-size:13px;color:var(--mut);margin-top:2px;font-variant-numeric:tabular-nums}
 
-  /* Focus trainer */
-  .catchbtn{width:100%;padding:24px;border-radius:8px;border:1px dashed var(--line2);background:#fff;color:var(--tx);font-size:19px;font-weight:800;cursor:pointer;transition:.1s}
-  .catchbtn:active{transform:scale(.98);background:var(--bg2);border-color:var(--acc)}
-  .catchbtn .c{display:block;font-size:13px;font-weight:600;color:var(--mut);margin-top:6px}
-  .ping{animation:ping .5s ease}
-  @keyframes ping{0%{box-shadow:0 0 0 0 rgba(43,51,60,.25)}100%{box-shadow:0 0 0 24px rgba(43,51,60,0)}}
   .ringtimer{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px;text-align:center;color:var(--tx)}
 
   /* Deep work */
@@ -178,9 +173,6 @@
   .restlist.do li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
   .restlist.no li{color:var(--mut)}
   .restlist.no li::before{content:"✕";position:absolute;left:0;color:var(--rose);font-weight:800}
-  #train-run.eyes .breathwrap, #train-run.eyes .ringtimer{display:none}
-  #train-run.eyes #catchbtn{min-height:46vh;font-size:24px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  #train-run.eyes #train-eyes-msg{display:block!important}
   .spectrum{display:flex;gap:6px}
   .spectrum button{flex:1;padding:15px 0;border:1px solid var(--line);border-radius:6px;font-weight:800;font-size:17px;cursor:pointer;color:var(--tx);transition:.12s}
   .spectrum button[data-r="1"]{background:#f6f4ee}
@@ -188,7 +180,7 @@
   .spectrum button[data-r="3"]{background:#c6c8cc}
   .spectrum button[data-r="4"]{background:#8a9099;color:#fff}
   .spectrum button[data-r="5"]{background:#2b333c;color:#fff}
-  .spectrum button.on{box-shadow:0 0 0 3px var(--green);z-index:1;transform:translateY(-2px)}
+  .spectrum button.on{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--acc);z-index:1;transform:translateY(-2px)}
 </style>
 </head>
 <body>
@@ -204,12 +196,11 @@
 <section class="screen on" id="s-home">
   <div class="card" style="margin-top:20px">
     <div class="row">
-      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button><button class="btn lg" data-go="train" style="text-transform:uppercase;letter-spacing:1px">Train</button>
+      <button class="btn primary lg" data-go="prime">Start</button>
     </div>
   </div>
 
     <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
-  <div class="card"><h3>Meta‑awareness</h3><div id="p-chart-cpm"></div></div>
   <div style="text-align:center;margin-top:8px">
     <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">RESET</button>
     <div id="reset-confirm" class="hide" style="margin-top:12px">
@@ -232,7 +223,7 @@
         <div class="field"><label class="fl">Outcome</label><input type="text" id="in-outcome" placeholder=""></div>
         <div class="field"><label class="fl">First tiny action</label><input type="text" id="in-first" placeholder=""></div>
       </div>
-      <div class="row" style="margin-top:18px"><button class="btn primary" onclick="primeStep(2)">Next →</button></div>
+      <div class="row" style="margin-top:18px"><button class="btn primary" onclick="primeStep(2)">Next</button></div>
     </div>
 
     <!-- step 2: residue -->
@@ -246,7 +237,7 @@
         <li data-c><span class="box"></span><span><b>Clear the space</b> — tidy desk, water and bathroom done, tell anyone nearby you're heads-down</span></li>
         <li data-c><span class="box"></span><span><b>Empty your head</b> — park the last thing and brain-dump nagging to-dos ("Hey Siri, impulse")</span></li>
       </ul>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">← Back</button><button class="btn primary" onclick="primeStep(3)">Next →</button></div>
+      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="primeStep(3)">Next</button></div>
     </div>
 
     <!-- step 3: arousal + breathing -->
@@ -300,42 +291,8 @@
           <div id="move-note" class="hide"><p class="tiny" style="text-align:center;margin-top:2px">Even better for a flat state: a brisk 2–5 min walk or jumping jacks, then start.</p></div>
         </div>
       </div>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">← Back</button><button class="btn primary" onclick="primeDone()">Continue →</button></div>
+      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">Back</button><button class="btn primary" onclick="primeDone()">Continue</button></div>
     </div>
-  </div>
-</section>
-
-<!-- ============ FOCUS TRAINER ============ -->
-<section class="screen" id="s-train">
-  <div class="card" style="margin-top:20px" id="train-setup">
-    <h2>Train the muscle</h2>
-    <label class="fl" style="margin-top:18px">Session length</label>
-    <div class="seg" id="train-dur">
-      <button data-min="3">3 min</button>
-      <button data-min="5" class="on">5 min</button>
-      <button data-min="10">10 min</button>
-      <button data-min="15">15 min</button>
-      <button data-min="20">20 min</button>
-    </div>
-    <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="trainStart()">Begin</button><label class="chip" style="cursor:pointer"><input type="checkbox" id="train-sound" checked style="width:auto;accent-color:var(--acc)"> chime</label><label class="chip" style="cursor:pointer"><input type="checkbox" id="train-eyes" style="width:auto;accent-color:var(--acc)"> eyes closed</label></div>
-  </div>
-
-  <div class="card hide" id="train-run" style="margin-top:20px;text-align:center">
-    <div class="ringtimer" id="train-clock">05:00</div>
-    <div class="breathwrap"><div class="orb" id="train-orb" style="width:200px;height:200px;transform:scale(.7)"><div class="phase" id="train-phase" style="font-size:16px">Breathe</div></div></div>
-    <p class="muted" id="train-eyes-msg" style="margin-top:8px;font-size:14px;display:none">Eyes closed. Breathe naturally. Tap the button or press <b>space</b> the moment you catch a wander.</p>
-    <button class="catchbtn" id="catchbtn" onclick="doCatch()">Caught it<span class="c" id="catch-c">0 catches — each one is a rep</span></button>
-    <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost" onclick="trainStop(true)">End early</button></div>
-  </div>
-
-  <div class="card hide" id="train-done" style="margin-top:20px;text-align:center">
-    <h2>Rep logged</h2>
-    <div class="grid g2" style="margin-top:16px">
-      <div class="stat"><div class="k">Minutes</div><div class="v" id="td-min">0</div></div>
-      <div class="stat"><div class="k">Catches</div><div class="v" id="td-catch">0</div></div>
-      <div class="stat"><div class="k">Per minute</div><div class="v" id="td-cpm">0</div></div>
-    </div>
-    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" data-go="deep">Deep Work</button></div>
   </div>
 </section>
 
@@ -349,21 +306,17 @@
       <div class="muted" id="deep-first" style="font-size:14px;margin-top:4px"></div>
     </div>
     <label class="fl" style="margin-top:16px">Block length</label>
-    <div class="seg" id="deep-dur">
-      <button data-min="25">25 min</button>
-      <button data-min="50" class="on">50 min</button>
-      <button data-min="90">90 min</button>
-    </div>
-    <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start block</button></div>
+    <div class="seg" id="deep-dur"></div>
+    <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start</button></div>
   </div>
 
   <div class="card hide" id="deep-run" style="margin-top:20px">
-    <div class="ringtimer" id="deep-clock">50:00</div>
+    <div class="ringtimer" id="deep-clock">25:00</div>
     <div class="card" style="background:var(--bg2);margin-top:14px">
       <div class="tiny">FOCUS ON</div>
       <div id="deep-run-outcome" style="font-size:17px;font-weight:700"></div>
     </div>
-    <div class="row" style="margin-top:16px"><button class="btn ghost" onclick="deepStop(true)">End block</button></div>
+    <div class="row" style="margin-top:16px"><button class="btn ghost" onclick="deepStop(true)">End</button></div>
   </div>
 
   <div class="card hide" id="deep-done" style="margin-top:20px;text-align:center">
@@ -375,18 +328,17 @@
       </div>
       <div class="row spread" style="margin-top:7px"><span class="tiny">← Scattered</span><span class="tiny">Locked in →</span></div>
     </div>
-    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" onclick="deepSave()">Save &amp; restore →</button></div>
+    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" onclick="deepSave()">Save &amp; restore</button></div>
   </div>
 
   <div class="card hide" id="deep-restore" style="margin-top:20px">
-    <h2>Restore — don't skip this</h2>
-    <p class="sub">The break isn't idle time — it's when the last block sinks in and your attention refuels. Skip it and the next block starts foggy.</p>
+    <h2>Restore</h2>
     <div class="grid g2" style="margin-top:14px">
       <div class="stat">
         <div class="k">Do</div>
         <ul class="restlist do">
           <li><b>Get into daylight</b> — sunlight resets alertness and steadies your body clock</li>
-          <li><b>Walk or move</b> — clears the mental fatigue that builds up under focus</li>
+          <li><b>Walk, no phone</b> — clears the mental fatigue that builds up under focus</li>
           <li><b>Look far away</b> — a long, soft gaze relaxes the eyes and the mind with them</li>
           <li><b>A few slow breaths</b> — long exhales bring you down from work tension</li>
           <li><b>10–20 min NSDR / yoga-nidra</b> — the deepest reset; refills dopamine and clears the last task from your head</li>
@@ -405,7 +357,6 @@
     </div>
     <div id="restore-timer" style="text-align:center;margin-top:18px">
       <div class="ringtimer" id="rest-clock">05:00</div>
-      <div class="tiny" id="rest-label" style="margin-top:4px">The break <b>is</b> the reset — walk, daylight, or NSDR. "Another block" unlocks when it's done.</div>
     </div>
     <div class="row" style="margin-top:16px"><button class="btn primary" data-go="home">Done</button><button class="btn" id="another-block" data-go="deep" disabled>Another block</button></div>
   </div>
@@ -450,7 +401,6 @@ function go(id){
   window.scrollTo({top:0,behavior:"smooth"});
   if(id==="home") renderHome();
   if(id==="prime"){ primeStep(1); }
-  if(id==="train"){ resetTrainUI(); }
   if(id==="deep"){ resetDeepUI(); }
 }
 document.addEventListener("click",function(e){
@@ -459,7 +409,6 @@ document.addEventListener("click",function(e){
 /* Stop every running timer/sound-trigger. Prevents orphaned countdowns from
    re-firing the end chime (the "constant chime" bug) and stops stacked intervals. */
 function stopAllTimers(){
-  if(typeof train!=="undefined"){ train.running=false; clearInterval(train.int); clearTimeout(train.orbTo); }
   if(typeof deep!=="undefined"){ deep.running=false; clearInterval(deep.int); }
   if(typeof pvt!=="undefined"){ pvt.running=false; clearTimeout(pvt.to); clearTimeout(pvt.leftTo); cancelAnimationFrame(pvt.raf); }
   if(typeof restTimer!=="undefined") clearInterval(restTimer);
@@ -491,12 +440,11 @@ function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; re
 
 /* ================= HOME ================= */
 function renderHome(){ renderProgress(); }
-function greet(){ var h=new Date().getHours(); var g=h<12?"Good morning.":h<18?"Good afternoon.":"Good evening."; return g+" Train your attention."; }
+function greet(){ var h=new Date().getHours(); var g=h<12?"Good morning.":h<18?"Good afternoon.":"Good evening."; return g+" Time to go deep."; }
 function minutesLast(n){
   var cut=new Date(); cut.setDate(cut.getDate()-n);
   var m=0;
   state.deep.forEach(function(d){ if(new Date(d.t)>=cut) m+=d.min; });
-  state.trains.forEach(function(d){ if(new Date(d.t)>=cut) m+=d.min; });
   return m;
 }
 function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.length : 0; }
@@ -593,87 +541,8 @@ function runPhase(orb,phaseEl,cdEl,phases){
 }
 function primeDone(){ stopBreath(); go("deep"); }
 
-/* ================= FOCUS TRAINER ================= */
-var train={dur:5,left:0,catches:0,int:0,orbRaf:0,orbIdx:0,running:false,eyes:false};
-function resetTrainUI(){
-  $("#train-setup").classList.remove("hide");
-  $("#train-run").classList.add("hide");
-  $("#train-done").classList.add("hide");
-  var s=suggestTrain();
-  train.dur=s.min;
-  $$("#train-dur button").forEach(function(x){ x.classList.toggle("on", +x.dataset.min===s.min); });
-}
-function avgArr(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.length : 0; }
-function nextTier(v,t){ for(var i=0;i<t.length;i++){ if(t[i]>v) return t[i]; } return t[t.length-1]; }
-function nearestTier(v,t){ var best=t[0],bd=Infinity; t.forEach(function(x){var d=Math.abs(x-v);if(d<bd){bd=d;best=x;}}); return best; }
-function suggestTrain(){
-  var T=state.trains, TIERS=[3,5,10,15,20];
-  if(!T.length) return {min:5, html:"First session — start with <b>5 min</b>. Consistency beats length."};
-  var mins=T.map(function(t){return t.min;});
-  var base=Math.max.apply(null, mins.slice(-5));
-  var cpms=T.map(function(t){return t.cpm;});
-  var half=Math.max(1,Math.floor(cpms.length/2));
-  var early=avgArr(cpms.slice(0,half)), late=avgArr(cpms.slice(-half));
-  var enough=T.length>=4;
-  var improving=enough && late<=early*0.9;
-  var worse=enough && late>early*1.15;
-  var rec=worse? base : nextTier(base,TIERS);
-  var trend=!enough? "You're building a baseline" : (improving? "Your catches/min is trending down — fewer wanders" : (worse? "Catches/min ticked up — more wandering lately" : "Your catches/min is holding steady"));
-  var move=rec>base? ("step up to <b>"+rec+" min</b>") : ("hold at <b>"+base+" min</b>");
-  return {min:rec, html:trend+" across your <b>"+T.length+"</b> sessions. You've reached <b>"+base+" min</b> — today, "+move+"."};
-}
-$$("#train-dur button").forEach(function(b){ b.addEventListener("click",function(){ $$("#train-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); train.dur=+b.dataset.min; }); });
-function trainStart(){
-  clearInterval(train.int); clearTimeout(train.orbTo);   // never stack timers
-  train.eyes = !!($("#train-eyes") && $("#train-eyes").checked);
-  $("#train-run").classList.toggle("eyes", train.eyes);
-  train.left=train.dur*60; train.catches=0; train.running=true;
-  $("#train-setup").classList.add("hide"); $("#train-run").classList.remove("hide"); $("#train-done").classList.add("hide");
-  $("#catch-c").textContent="0 catches — each one is a rep";
-  $("#train-clock").textContent=fmt(train.left);
-  if($("#train-sound").checked) chime(528,1.2);
-  if(!train.eyes) trainOrb();
-  train.int=setInterval(function(){
-    train.left--; $("#train-clock").textContent=fmt(train.left);
-    if(train.left<=0) trainStop(false);
-  },1000);
-}
-function trainOrb(){ // slow 4s in / 6s out anchor
-  var phases=[["Breathe in",4000],["Breathe out",6000]];
-  var orb=$("#train-orb"), ph=$("#train-phase"), i=0;
-  function next(){
-    if(!train.running) return;
-    var p=phases[i%2]; ph.textContent=p[0];
-    orb.style.transition="transform "+(p[1]/1000)+"s cubic-bezier(.4,0,.2,1)";
-    orb.style.transform= i%2===0? "scale(1.0)":"scale(.62)";
-    i++; train.orbTo=setTimeout(next,p[1]);
-  }
-  next();
-}
-function doCatch(){
-  if(!train.running) return;
-  train.catches++;
-  var b=$("#catchbtn"); b.classList.remove("ping"); void b.offsetWidth; b.classList.add("ping");
-  $("#catch-c").textContent=train.catches+" catch"+(train.catches>1?"es":"")+" — nicely noticed";
-  if(train.eyes && $("#train-sound") && $("#train-sound").checked) chime(680,0.12);
-}
-function trainStop(early){
-  if(!train.running) return;   // guard: a stopped session can never re-fire the chime
-  train.running=false; clearInterval(train.int); clearTimeout(train.orbTo);
-  var done=Math.round((train.dur*60-train.left)/60*10)/10;
-  var mins= early? Math.max(0.5,done) : train.dur;
-  if($("#train-sound") && $("#train-sound").checked) chime(396,1.4);
-  var cpm= mins>0? +(train.catches/mins).toFixed(2):0;
-  state.trains.push({t:Date.now(),min:Math.round(mins),catches:train.catches,cpm:cpm});
-  markDay(); save();
-  $("#train-run").classList.add("hide"); $("#train-done").classList.remove("hide");
-  $("#td-min").textContent=Math.round(mins); $("#td-catch").textContent=train.catches; $("#td-cpm").textContent=cpm;
-}
-
-document.addEventListener("keydown",function(e){ if(e.code==="Space" && train.running && $("#s-train") && $("#s-train").classList.contains("on")){ e.preventDefault(); doCatch(); } });
-
 /* ================= DEEP WORK ================= */
-var deep={min:50,left:0,int:0,parks:[],rating:0,mid:false,running:false};
+var deep={min:25,left:0,int:0,parks:[],rating:0,mid:false,running:false};
 function resetDeepUI(){
   $("#deep-setup").classList.remove("hide");
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.add("hide"); $("#deep-restore").classList.add("hide");
@@ -681,22 +550,24 @@ function resetDeepUI(){
   var f=($("#in-first")&&$("#in-first").value.trim())||"";
   $("#deep-outcome").textContent=o||"N/A";
   $("#deep-first").textContent=f?("First action: "+f):"";
-  var s=suggestDeep();
-  deep.min=s.min;
-  $$("#deep-dur button").forEach(function(x){ x.classList.toggle("on", +x.dataset.min===s.min); });
+  var rec=suggestDeep().min, FLOOR=10;
+  deep.min=rec;
+  var opts=[rec-5,rec,rec+5].filter(function(v){return v>=FLOOR;});
+  $("#deep-dur").innerHTML=opts.map(function(v){ return '<button data-min="'+v+'"'+(v===rec?' class="on"':'')+'>'+v+' min</button>'; }).join("");
 }
-$$("#deep-dur button").forEach(function(b){ b.addEventListener("click",function(){ $$("#deep-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.min=+b.dataset.min; }); });
+(function(){ var dd=$("#deep-dur"); if(dd) dd.addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return; $$("#deep-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.min=+b.dataset.min; }); })();
 function suggestDeep(){
-  var D=state.deep, TIERS=[25,50,90];
-  if(!D.length) return {min:50, html:"First block — start with <b>50 min</b>. Go longer when it feels easy."};
-  var mins=D.map(function(x){return x.min;});
-  var base=nearestTier(avgArr(mins.slice(-5)), TIERS);
-  var atBase=mins.slice(-5).filter(function(m){return m>=base;}).length;
-  var ratings=D.map(function(x){return x.rating;}).filter(function(r){return r;});
-  var good=ratings.length? avgArr(ratings.slice(-5))>=4 : true;
-  var rec=(atBase>=3 && good)? nextTier(base,TIERS) : base;
-  var msg=rec>base? ("Across <b>"+D.length+"</b> blocks you've settled at <b>"+base+" min</b> and they're going well — step up to <b>"+rec+" min</b> today.") : ("Across <b>"+D.length+"</b> blocks you've settled around <b>"+base+" min</b>. Today: <b>"+rec+" min</b> — go longer when it feels easy.");
-  return {min:rec, html:msg};
+  var D=state.deep, STEP=5, FLOOR=10, CAP=120;
+  if(!D.length) return {min:25};
+  var recent=D.slice(-5), mins=recent.map(function(x){return x.min;});
+  var base=Math.max.apply(null,mins);
+  var ratings=recent.map(function(x){return x.rating;}).filter(function(r){return r;});
+  var good=ratings.length? avg(ratings)>=4 : true;
+  var last=D[D.length-1], rec;
+  if(good && last.min>=base) rec=Math.min(CAP, base+STEP);   // deliberate practice: small step up
+  else if(!good) rec=Math.max(FLOOR, base-STEP);             // struggled: ease back
+  else rec=base;                                             // hold and consolidate
+  return {min:Math.max(FLOOR, Math.round(rec/5)*5)};
 }
 function deepStart(){
   clearInterval(deep.int);   // never stack timers
@@ -742,8 +613,6 @@ function deepSave(){
 /* ================= PROGRESS ================= */
 function renderProgress(){
   $("#p-chart-min").innerHTML = state.deep.length? barChart(deepSeries()) : emptyBox("No deep-work blocks yet.");
-  var cpm=state.trains.map(function(t){return t.cpm;});
-  $("#p-chart-cpm").innerHTML = cpm.length? lineChart(cpm,{min:0,max:Math.max(3,Math.ceil(Math.max.apply(null,cpm))),accent:"var(--violet)"}) : emptyBox("No training sessions yet.");
 }
 function deepSeries(){
   var byDay={}, order=[];
