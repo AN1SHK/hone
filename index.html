@@ -173,6 +173,11 @@
   .qz label.fl{margin-bottom:6px}
   .qopts{display:flex;width:100%;gap:4px}
   .qopts button{flex:1;padding-left:8px;padding-right:8px}
+  .restlist{list-style:none;margin-top:10px;display:grid;gap:7px}
+  .restlist li{font-size:14px;padding-left:22px;position:relative;line-height:1.4}
+  .restlist.do li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
+  .restlist.no li{color:var(--mut)}
+  .restlist.no li::before{content:"✕";position:absolute;left:0;color:var(--rose);font-weight:800}
 </style>
 </head>
 <body>
@@ -188,7 +193,7 @@
 <section class="screen on" id="s-home">
   <div class="card" style="margin-top:20px">
     <div class="row">
-      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button><button class="btn lg" data-go="deep" style="text-transform:uppercase;letter-spacing:1px">Quick block</button>
+      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button>
     </div>
   </div>
 
@@ -229,8 +234,6 @@
         <li data-c><span class="box"></span><span><b>Seal the room</b> — door, window, and blinds closed; headphones in</span></li>
         <li data-c><span class="box"></span><span><b>Clear the space</b> — tidy desk, water and bathroom done, tell anyone nearby you're heads-down</span></li>
         <li data-c><span class="box"></span><span><b>Empty your head</b> — park the last thing and brain-dump nagging to-dos ("Hey Siri, impulse")</span></li>
-        <li data-c><span class="box"></span><span><b>Set the edges</b> — decide your first action and your end time</span></li>
-        <li data-c><span class="box"></span><span><b>One slow breath</b> — then begin</span></li>
       </ul>
       <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">← Back</button><button class="btn primary" onclick="primeStep(3)">Next →</button></div>
     </div>
@@ -339,7 +342,6 @@
       <button data-min="50" class="on">50 min</button>
       <button data-min="90">90 min</button>
     </div>
-    <p class="tiny" id="deep-suggest" style="margin-top:12px"></p>
     <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start block</button></div>
   </div>
 
@@ -348,10 +350,6 @@
     <div class="card" style="background:var(--bg2);margin-top:14px">
       <div class="tiny">FOCUS ON</div>
       <div id="deep-run-outcome" style="font-size:17px;font-weight:700"></div>
-    </div>
-    <div style="margin-top:16px">
-      <div class="row"><input type="text" id="park-in" placeholder="e.g. reply to Sam, check that price" onkeydown="if(event.key==='Enter')park()"><button class="btn" onclick="park()">Park</button></div>
-      <ul class="parklist" id="parklist"></ul>
     </div>
     <div class="row spread" style="margin-top:16px"><button class="btn ghost" onclick="deepStop(true)">End block</button><span class="chip" id="deep-elapsed">0 min in</span></div>
   </div>
@@ -363,16 +361,29 @@
       <button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button>
     </div>
     <div class="tiny" style="margin-top:6px">1 = scattered · 5 = locked in</div>
-    <div id="park-recall" class="muted" style="margin-top:16px;font-size:14px"></div>
     <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" onclick="deepSave()">Save &amp; restore →</button></div>
   </div>
 
   <div class="card hide" id="deep-restore" style="margin-top:20px">
     <h2>Restore — don't skip this</h2>
-    <p class="sub">A real break resets the vigilance decrement. Social media does the opposite — it reloads residue and interruption cost.</p>
     <div class="grid g2" style="margin-top:14px">
-      <div class="stat"><div class="k">Do</div><div style="margin-top:6px">Walk · daylight · look far away · a few slow breaths · 10–20 min NSDR / yoga‑nidra for a deep reset</div></div>
-      <div class="stat"><div class="k">Avoid</div><div style="margin-top:6px;color:var(--mut)">Feeds, email, news, anything that starts a new task in your head</div></div>
+      <div class="stat">
+        <div class="k">Do</div>
+        <ul class="restlist do">
+          <li>Walk — ideally outside, in daylight</li>
+          <li>Look far away and let your eyes soften</li>
+          <li>A few slow breaths</li>
+          <li>10–20 min NSDR / yoga-nidra for a deep reset</li>
+        </ul>
+      </div>
+      <div class="stat">
+        <div class="k">Avoid</div>
+        <ul class="restlist no">
+          <li>Feeds, social, news</li>
+          <li>Email and messages</li>
+          <li>Anything that starts a new task in your head</li>
+        </ul>
+      </div>
     </div>
     <div id="restore-timer" style="text-align:center;margin-top:18px">
       <div class="ringtimer" id="rest-clock">05:00</div>
@@ -645,11 +656,10 @@ function resetDeepUI(){
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.add("hide"); $("#deep-restore").classList.add("hide");
   var o=($("#in-outcome")&&$("#in-outcome").value.trim())||"";
   var f=($("#in-first")&&$("#in-first").value.trim())||"";
-  $("#deep-outcome").textContent=o||"(no intention set — you can still focus)";
+  $("#deep-outcome").textContent=o||"N/A";
   $("#deep-first").textContent=f?("First action: "+f):"";
   var s=suggestDeep();
   deep.min=s.min;
-  $("#deep-suggest").innerHTML=s.html;
   $$("#deep-dur button").forEach(function(x){ x.classList.toggle("on", +x.dataset.min===s.min); });
 }
 $$("#deep-dur button").forEach(function(b){ b.addEventListener("click",function(){ $$("#deep-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.min=+b.dataset.min; }); });
@@ -668,7 +678,6 @@ function suggestDeep(){
 function deepStart(){
   clearInterval(deep.int);   // never stack timers
   deep.left=deep.min*60; deep.parks=[]; deep.rating=0; deep.mid=false; deep.running=true;
-  $("#parklist").innerHTML="";
   $("#deep-setup").classList.add("hide"); $("#deep-run").classList.remove("hide");
   $("#deep-run-outcome").textContent=($("#in-outcome")&&$("#in-outcome").value.trim())||"your one task";
   $("#deep-clock").textContent=fmt(deep.left);
@@ -679,13 +688,6 @@ function deepStart(){
     if(deep.left<=0) deepStop(false);
   },1000);
 }
-function park(){
-  var v=$("#park-in").value.trim(); if(!v) return;
-  deep.parks.push(v); $("#park-in").value="";
-  var li=document.createElement("li"); li.textContent=v; $("#parklist").appendChild(li);
-  toast("Sent to your schedule's impulse list.");
-  try{ fetch("https://my-schedule-a0ded-default-rtdb.firebaseio.com/impulses.json",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:v})}).catch(function(){}); }catch(e){}
-}
 function deepStop(early){
   if(!deep.running) return;   // guard against re-entry / orphaned ticks
   deep.running=false; clearInterval(deep.int);
@@ -693,13 +695,12 @@ function deepStop(early){
   deep.actual= early? Math.max(1,done): deep.min;
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.remove("hide");
   chime(440,1.2);
-  $("#park-recall").innerHTML = deep.parks.length? ("You parked "+deep.parks.length+" thing"+(deep.parks.length>1?"s":"")+": "+deep.parks.map(function(p){return "“"+p+"”";}).join(", ")+". They're in your schedule's impulse list now.") : "Nothing pulled you away — clean block.";
 }
 $$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; }); });
 var restTimer=0;
 function startRestore(){
   clearInterval(restTimer);
-  var mins=Math.min(15,Math.max(3,Math.round((deep.actual||50)/10)));
+  var mins=Math.min(20,Math.max(5,Math.round((deep.actual||50)/5)));
   var end=Date.now()+mins*60000;
   var ab=$("#another-block"); if(ab) ab.disabled=true;
   function tick(){
