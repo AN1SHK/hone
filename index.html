@@ -284,8 +284,8 @@
             <button class="btn primary" id="breath-btn" onclick="toggleBreath()">Begin breathing</button>
           </div>
           <p class="tiny" id="breath-why" style="text-align:center;margin-top:10px;max-width:540px;margin-left:auto;margin-right:auto"></p>
-          <div id="move-note" class="hide"><p class="tiny" style="text-align:center;margin-top:2px">Even better for a flat state: a brisk 2–5 min walk or jumping jacks, then start.</p></div>
         </div>
+        <div id="move-rec" class="hide" style="text-align:center"><p class="muted" id="move-rec-desc" style="font-size:14px;max-width:540px;margin:4px auto 0"></p></div>
       </div>
       <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="primeDone()">Continue</button></div>
     </div>
@@ -518,20 +518,28 @@ $$("#arousal-quiz .qz").forEach(function(qz){
     if(Object.keys(arousalAns).length===2) scoreArousal();
   });});
 });
+var MOVE={
+  low:{ label:"A bit flat — move, don't breathe.", rec:"A brisk 2–5 min walk or some light movement lifts a flat state faster than any breathing drill. Get daylight if you can, then start." },
+  verylow:{ label:"Drained — move, don't breathe.", rec:"A brisk walk, a flight of stairs, or a set of jumping jacks beats breathing here. Add daylight, then start." }
+};
 function scoreArousal(){
   var a=arousalAns[0];
   chosenState = a>=2?"veryhigh" : (a===1?"high" : (a===0?"balanced" : (a===-1?"low" : "verylow")));
   dayCap = [1,0.9,0.75][arousalAns[1]] || 1;
-  var steady = (chosenState==="balanced");
-  $("#breath-block").classList.toggle("hide", steady);   // breathing only when you're actually off
-  if(steady){
+  var kind = chosenState==="balanced" ? "steady" : ((chosenState==="low"||chosenState==="verylow") ? "move" : "breathe");
+  $("#breath-block").classList.toggle("hide", kind!=="breathe");   // breathing only helps over-arousal
+  $("#move-rec").classList.toggle("hide", kind!=="move");          // under-arousal: movement beats breathing
+  if(kind==="steady"){
     $("#arousal-verdict").innerHTML="<b>Steady — good to go. Start your block.</b>";
+  } else if(kind==="move"){
+    var m=MOVE[chosenState];
+    $("#arousal-verdict").innerHTML="<b>"+m.label+"</b>";
+    $("#move-rec-desc").textContent=m.rec;
   } else {
     var p=PROTOCOLS[chosenState];
     $("#arousal-verdict").innerHTML="<b>"+p.label+"</b>";
     $("#breath-desc").textContent=p.name+" — "+p.desc;
     $("#breath-why").textContent=p.why;
-    $("#move-note").classList.toggle("hide", !(chosenState==="low"||chosenState==="verylow"));
     $("#orb-phase").textContent="Ready"; $("#orb-cd").textContent="";
     $("#breath-btn").textContent="Begin breathing · "+fmtMin(p.minutes);
   }
