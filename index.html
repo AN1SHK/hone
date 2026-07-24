@@ -191,14 +191,7 @@
 <!-- ============ HOME ============ -->
 <section class="screen on" id="s-home">
   <div class="card" style="margin-top:20px">
-    <div class="row spread" style="align-items:flex-start">
-      <div>
-        <h1 id="greeting">Train your attention.</h1>
-        <p class="sub" style="max-width:520px">Not a blocker. Not background music. A daily workout for the one skill that runs everything else — the ability to hold your mind on one thing, notice when it drifts, and pull it back.</p>
-      </div>
-      <div class="chip" title="Consecutive days trained">🔥 <span id="streak">0</span>‑day streak</div>
-    </div>
-    <div class="row" style="margin-top:20px">
+    <div class="row">
       <button class="btn primary lg" data-go="prime">Start today's session →</button>
       <button class="btn lg" data-go="test">Quick sharpness test</button>
     </div>
@@ -545,8 +538,8 @@ function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; re
 
 /* ================= HOME ================= */
 function renderHome(){
-  $("#greeting").textContent = greet();
-  $("#streak").textContent = streak();
+  var _g=$("#greeting"); if(_g) _g.textContent = greet();
+  var _s=$("#streak"); if(_s) _s.textContent = streak();
   var last=state.tests[state.tests.length-1];
   $("#h-sharp").textContent = last? last.sharp : "—";
   if(state.tests.length>=2){
