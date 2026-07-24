@@ -211,7 +211,7 @@
 
     <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
   <div class="card"><h3>Meta-awareness</h3><div id="p-chart-meta"></div></div>
-  <div style="text-align:center;margin-top:8px">
+  <div style="text-align:center;margin-top:8px;display:flex;flex-direction:column;align-items:center">
     <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">RESET</button>
     <div id="reset-confirm" class="hide" style="margin-top:12px">
       <div class="tiny" style="margin-bottom:6px">Type <b>HONE</b> to confirm</div>
@@ -675,7 +675,7 @@ function deepStart(){
   $("#deep-setup").classList.add("hide"); $("#deep-run").classList.remove("hide");
   $("#deep-run-outcome").textContent=($("#in-outcome")&&$("#in-outcome").value.trim())||"your one task";
   $("#deep-clock").textContent=fmt(deep.left);
-  showTopbar(); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left); askNotify();
+  showTopbar(); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left);
   startImpulseWatch();
   publishTimer(); requestWake();
   if($("#deep-noise")&&$("#deep-noise").checked) startNoise();
@@ -694,7 +694,7 @@ function deepStop(early){
   $$("#rate button").forEach(function(x){x.classList.remove("on");}); if($("#rate-label")) $("#rate-label").textContent="";
   $$(".screen").forEach(function(s){s.classList.remove("on");}); if($("#s-deep")) $("#s-deep").classList.add("on"); window.scrollTo({top:0});
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.remove("hide");
-  if(!early){ alarm(); notify("Block complete — rate it, then take your break."); } else { chime(440,0.8); }
+  chime(440,0.8);
   showCaught();
   impulseKeys().then(function(keys){ if(keys) keys.forEach(function(k){ if(!deep.impKnown[k]){ deep.impKnown[k]=1; deep.catches++; } }); showCaught(); });  // final sweep so a just-caught urge isn't missed
 }
@@ -708,7 +708,7 @@ function startRestore(){
   var ab=$("#another-block"); if(ab) ab.disabled=true;
   function tick(){
     var left=(end-Date.now())/1000;
-    if(left<=0){ clearInterval(restTimer); if($("#rest-clock"))$("#rest-clock").textContent="00:00"; if($("#rest-label"))$("#rest-label").textContent="Reset complete — go again if you want."; if(ab) ab.disabled=false; breakRunning=false; releaseWake(); alarm(); notify("Break's over — start your next block."); return; }
+    if(left<=0){ clearInterval(restTimer); if($("#rest-clock"))$("#rest-clock").textContent="00:00"; if($("#rest-label"))$("#rest-label").textContent="Reset complete — go again if you want."; if(ab) ab.disabled=false; breakRunning=false; releaseWake(); return; }
     if($("#rest-clock"))$("#rest-clock").textContent=fmt(left);
   }
   tick(); restTimer=setInterval(tick,1000);
