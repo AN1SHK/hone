@@ -214,8 +214,7 @@
 
 <!-- ============ HOME ============ -->
 <section class="screen on" id="s-home">
-  <div class="card" style="margin-top:20px;text-align:center;padding:46px 24px">
-    <div class="muted" id="home-greet" style="font-size:16px;margin-bottom:24px"></div>
+  <div class="card" style="margin-top:20px;text-align:center;padding:30px 24px">
     <button class="btn primary" data-go="prime" style="font-size:18px;padding:18px 64px;letter-spacing:1px">Start</button>
   </div>
 
@@ -457,8 +456,7 @@ function chime(freq,dur){
 function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; return (m<10?"0":"")+m+":"+(r<10?"0":"")+r; }
 
 /* ================= HOME ================= */
-function renderHome(){ renderProgress(); var g=$("#home-greet"); if(g) g.textContent=greet(); }
-function greet(){ var h=new Date().getHours(); var g=h<12?"Good morning.":h<18?"Good afternoon.":"Good evening."; return g+" Time to go deep."; }
+function renderHome(){ renderProgress(); }
 function minutesLast(n){
   var cut=new Date(); cut.setDate(cut.getDate()-n);
   var m=0;
