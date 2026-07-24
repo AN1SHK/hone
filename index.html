@@ -168,15 +168,6 @@
   .stepdots i{height:3px;flex:1;border-radius:3px;background:var(--line)}
   .stepdots i.on{background:var(--acc)}
   .hide{display:none!important}
-  #topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--acc);color:#fbfaf6;transform:translateY(-100%);transition:transform .22s ease;box-shadow:0 2px 12px rgba(0,0,0,.15)}
-  #topbar.on{transform:translateY(0)}
-  #topbar .tb-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:9px 18px}
-  #top-clock{font-weight:800;font-variant-numeric:tabular-nums;font-size:19px;letter-spacing:-.5px}
-  .tb-task{flex:1;font-size:13px;color:rgba(251,250,246,.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tb-end{background:transparent;border:1px solid rgba(251,250,246,.4);color:#fbfaf6;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px;padding:6px 12px;border-radius:6px;cursor:pointer}
-  .tb-end:hover{background:rgba(251,250,246,.14)}
-  body.hasbar{padding-top:44px}
-  body.hasbar header{display:none}
   footer{color:var(--mut2);font-size:12px;text-align:center;padding:30px 0 10px}
   .qz label.fl{margin-bottom:6px}
   .qopts{display:flex;width:100%;gap:4px}
@@ -207,8 +198,6 @@
     <div class="logo" data-go="home" style="cursor:pointer"><span class="dot"></span>HONE</div>
   </div>
 </header>
-
-<div id="topbar"><div class="tb-in"><span id="top-clock">00:00</span><span id="top-task" class="tb-task"></span><button class="tb-end" onclick="deepStop(true)">End</button></div></div>
 
 <div class="wrap">
 
@@ -426,8 +415,8 @@ function stopAllTimers(){
   if(typeof restTimer!=="undefined") clearInterval(restTimer);
   if(typeof stopBreath==="function") stopBreath();
 }
-function showTopbar(){ var t=$("#topbar"); if(t) t.classList.add("on"); document.body.classList.add("hasbar"); var tk=$("#top-task"); if(tk) tk.textContent=($("#in-outcome")&&$("#in-outcome").value.trim())||""; }
-function hideTopbar(){ var t=$("#topbar"); if(t) t.classList.remove("on"); document.body.classList.remove("hasbar"); }
+function showTopbar(){}
+function hideTopbar(){}
 function alarm(){ try{ if(AC && AC.state==="suspended") AC.resume(); }catch(e){} try{ chime(880,0.3); setTimeout(function(){chime(880,0.3);},380); setTimeout(function(){chime(1175,0.6);},760); }catch(e){} }
 function notify(body){ try{ if(window.Notification && Notification.permission==="granted") new Notification("HONE",{body:body}); }catch(e){} }
 function askNotify(){ try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){} }
