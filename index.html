@@ -215,7 +215,6 @@
 <!-- ============ PRIME / SESSION ============ -->
 <section class="screen" id="s-prime">
   <div class="card" style="margin-top:20px">
-    <div class="stepdots" id="prime-dots"><i class="on"></i><i></i><i></i></div>
 
     <!-- step 1: intention -->
     <div id="prime-1">
@@ -224,7 +223,7 @@
         <div class="field"><label class="fl">Your ONE thing</label><textarea id="in-outcome" rows="2" placeholder="What's the ONE thing you can do such that by doing it everything else becomes easier or unnecessary?" style="resize:none"></textarea></div>
         <div class="field"><label class="fl">First tiny action</label><input type="text" id="in-first" placeholder=""></div>
       </div>
-      <div class="row" style="margin-top:18px"><button class="btn primary" onclick="primeStep(2)">Next</button></div>
+      <div class="row" style="margin-top:18px"><button class="btn primary" onclick="afterIntention()">Next</button></div>
     </div>
 
     <!-- step 2: residue -->
@@ -238,7 +237,7 @@
         <li data-c><span class="box"></span><span><b>Clear the space</b> — tidy desk, water and bathroom done, tell anyone nearby you're heads-down</span></li>
         <li data-c><span class="box"></span><span><b>Empty your head</b> — park the last thing and brain-dump nagging to-dos ("Hey Siri, impulse")</span></li>
       </ul>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="primeStep(3)">Next</button></div>
+      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="afterResidue()">Next</button></div>
     </div>
 
     <!-- step 3: arousal + breathing -->
@@ -279,7 +278,7 @@
           <div id="move-note" class="hide"><p class="tiny" style="text-align:center;margin-top:2px">Even better for a flat state: a brisk 2–5 min walk or jumping jacks, then start.</p></div>
         </div>
       </div>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">Back</button><button class="btn primary" onclick="primeDone()">Continue</button></div>
+      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="primeDone()">Continue</button></div>
     </div>
   </div>
 </section>
@@ -446,9 +445,11 @@ function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.lengt
 var chosenState=null, dayCap=1, arousalAns={};
 function primeStep(n){
   [1,2,3].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
-  $$("#prime-dots i").forEach(function(d,i){ d.classList.toggle("on", i<n); });
   if(n===3) resetArousal();
 }
+function needResidue(){ return state.residueDay !== today(); }   // clear-your-head once per day, not per block
+function afterIntention(){ if(needResidue()) primeStep(2); else primeStep(3); }
+function afterResidue(){ state.residueDay=today(); save(); primeStep(3); }
 $$("#residue li").forEach(function(li){ li.addEventListener("click",function(){ li.classList.toggle("done"); }); });
 
 /* arousal questionnaire -> matched, time-bounded breathing protocol */
@@ -478,13 +479,19 @@ function scoreArousal(){
   var a=arousalAns[0];
   chosenState = a>=2?"veryhigh" : (a===1?"high" : (a===0?"balanced" : (a===-1?"low" : "verylow")));
   dayCap = [1,0.9,0.75][arousalAns[1]] || 1;
-  var p=PROTOCOLS[chosenState];
-  $("#arousal-verdict").innerHTML="<b>"+p.label+"</b>";
-  $("#breath-desc").textContent=p.name+" — "+p.desc;
-  $("#breath-why").textContent=p.why;
-  $("#move-note").classList.toggle("hide", !(chosenState==="low"||chosenState==="verylow"));
-  $("#orb-phase").textContent="Ready"; $("#orb-cd").textContent="";
-  $("#breath-btn").textContent="Begin breathing · "+fmtMin(p.minutes);
+  var steady = (chosenState==="balanced");
+  $("#breath-block").classList.toggle("hide", steady);   // breathing only when you're actually off
+  if(steady){
+    $("#arousal-verdict").innerHTML="<b>Steady — good to go. Start your block.</b>";
+  } else {
+    var p=PROTOCOLS[chosenState];
+    $("#arousal-verdict").innerHTML="<b>"+p.label+"</b>";
+    $("#breath-desc").textContent=p.name+" — "+p.desc;
+    $("#breath-why").textContent=p.why;
+    $("#move-note").classList.toggle("hide", !(chosenState==="low"||chosenState==="verylow"));
+    $("#orb-phase").textContent="Ready"; $("#orb-cd").textContent="";
+    $("#breath-btn").textContent="Begin breathing · "+fmtMin(p.minutes);
+  }
   $("#arousal-result").classList.remove("hide");
   stopBreath();
 }
