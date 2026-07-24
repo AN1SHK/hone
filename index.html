@@ -562,8 +562,8 @@ function resetDeepUI(){
   deep.min=rec;
   var LADDER=[10,15,20,25,30,35,40,45,50,60,75,90,120];
   var opts=LADDER.slice(); if(opts.indexOf(rec)<0){ opts.push(rec); opts.sort(function(a,b){return a-b;}); }
-  $("#deep-dur").innerHTML=opts.map(function(v){ return '<button data-min="'+v+'"'+(v===rec?' class="on"':'')+'>'+v+' min</button>'; }).join("");
-  var cap=$("#deep-rec"); if(cap) cap.textContent="Recommended today: "+rec+" min — from your recent focus and how primed you feel.";
+  $("#deep-dur").innerHTML=opts.map(function(v){ return '<button data-min="'+v+'"'+(v===rec?' class="on"':'')+'>'+v+'</button>'; }).join("");
+  var cap=$("#deep-rec"); if(cap) cap.textContent="Recommended: "+rec+" min";
 }
 (function(){ var dd=$("#deep-dur"); if(dd) dd.addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return; $$("#deep-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.min=+b.dataset.min; }); })();
 function suggestDeep(){
