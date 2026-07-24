@@ -211,7 +211,7 @@
     <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
   <div class="card"><h3>Meta‑awareness</h3><div id="p-chart-cpm"></div></div>
   <div style="text-align:center;margin-top:8px">
-    <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">RESET ALL DATA</button>
+    <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">RESET</button>
     <div id="reset-confirm" class="hide" style="margin-top:12px">
       <div class="tiny" style="margin-bottom:6px">Type <b>HONE</b> to confirm — this can't be undone.</div>
       <input type="text" id="reset-word" placeholder="HONE" style="max-width:200px;text-align:center;display:inline-block;width:auto" onkeydown="if(event.key==='Enter')confirmReset()">
@@ -746,9 +746,15 @@ function renderProgress(){
   $("#p-chart-cpm").innerHTML = cpm.length? lineChart(cpm,{min:0,max:Math.max(3,Math.ceil(Math.max.apply(null,cpm))),accent:"var(--violet)"}) : emptyBox("No training sessions yet.");
 }
 function deepSeries(){
-  var vals=[], lbls=[];
-  state.deep.forEach(function(x){ vals.push(x.min); lbls.push(new Date(x.t).toLocaleDateString(undefined,{month:"numeric",day:"numeric"})); });
-  return {vals:vals,lbls:lbls};
+  var byDay={}, order=[];
+  state.deep.forEach(function(x){
+    var d=new Date(x.t), key=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    if(!byDay[key]){ byDay[key]={min:0,t:x.t,lbl:d.toLocaleDateString(undefined,{month:"numeric",day:"numeric"})}; order.push(key); }
+    byDay[key].min += (x.min||0);
+    if(x.t < byDay[key].t) byDay[key].t = x.t;
+  });
+  order.sort(function(a,b){ return byDay[a].t - byDay[b].t; });
+  return { vals: order.map(function(k){return byDay[k].min;}), lbls: order.map(function(k){return byDay[k].lbl;}) };
 }
 
 /* ---- charts (inline SVG) ---- */
