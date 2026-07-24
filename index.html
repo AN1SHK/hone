@@ -417,7 +417,17 @@ function stopAllTimers(){
 }
 function showTopbar(){}
 function hideTopbar(){}
-function alarm(){ try{ if(AC && AC.state==="suspended") AC.resume(); }catch(e){} try{ chime(880,0.3); setTimeout(function(){chime(880,0.3);},380); setTimeout(function(){chime(1175,0.6);},760); }catch(e){} }
+var alarmTimers=[];
+function stopAlarm(){ alarmTimers.forEach(function(t){clearTimeout(t);}); alarmTimers=[]; }
+function alarm(){
+  stopAlarm();
+  try{ if(AC && AC.state==="suspended") AC.resume(); }catch(e){}
+  for(var i=0;i<11;i++){                                  // ~15s of gentle double-beeps
+    alarmTimers.push(setTimeout(function(){ try{chime(880,0.28);}catch(e){} }, i*1400));
+    alarmTimers.push(setTimeout(function(){ try{chime(1175,0.5);}catch(e){} }, i*1400+320));
+  }
+}
+document.addEventListener("click", stopAlarm);   // any tap back in silences it
 function notify(body){ try{ if(window.Notification && Notification.permission==="granted") new Notification("HONE",{body:body}); }catch(e){} }
 function askNotify(){ try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){} }
 
