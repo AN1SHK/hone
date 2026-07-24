@@ -170,6 +170,9 @@
   .stepdots i.on{background:var(--acc)}
   .hide{display:none!important}
   footer{color:var(--mut2);font-size:12px;text-align:center;padding:30px 0 10px}
+  .qz label.fl{margin-bottom:6px}
+  .qopts{display:flex;width:100%;gap:4px}
+  .qopts button{flex:1;padding-left:8px;padding-right:8px}
 </style>
 </head>
 <body>
@@ -185,12 +188,20 @@
 <section class="screen on" id="s-home">
   <div class="card" style="margin-top:20px">
     <div class="row">
-      <button class="btn primary lg" data-go="prime">Start today's session →</button>
+      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button>
     </div>
   </div>
 
     <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
   <div class="card"><h3>Meta‑awareness</h3><div id="p-chart-cpm"></div></div>
+  <div style="text-align:center;margin-top:8px">
+    <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">Reset all data</button>
+    <div id="reset-confirm" class="hide" style="margin-top:12px">
+      <div class="tiny" style="margin-bottom:6px">Type <b>HONE</b> to confirm — this can't be undone.</div>
+      <input type="text" id="reset-word" placeholder="HONE" style="max-width:200px;text-align:center;display:inline-block;width:auto" onkeydown="if(event.key==='Enter')confirmReset()">
+      <button class="btn danger" onclick="confirmReset()" style="margin-left:8px">Wipe</button>
+    </div>
+  </div>
 </section>
 
 <!-- ============ PRIME / SESSION ============ -->
@@ -233,24 +244,46 @@
     <!-- step 3: arousal + breathing -->
     <div id="prime-3" class="hide">
       <h2>Tune your arousal</h2>
-      <p class="sub">Focus lives at the middle of the arousal curve. Where are you right now?</p>
-      <div class="seg" id="statepick" style="margin-top:14px">
-        <button data-state="wired" class="on">Wired / anxious</button>
-        <button data-state="neutral">About right</button>
-        <button data-state="groggy">Groggy / flat</button>
-      </div>
-      <div id="breath-block" style="margin-top:8px">
-        <div class="breathwrap">
-          <div class="orb" id="orb"><div><div class="phase" id="orb-phase">Ready</div><div class="cd" id="orb-cd"></div></div></div>
+      <p class="sub">Your own read on this is unreliable — answer three quick questions and I'll match the exact breathing to bring you to the focused middle.</p>
+      <div id="arousal-quiz" style="margin-top:16px">
+        <div class="qz" data-q="0">
+          <label class="fl">Your body right now</label>
+          <div class="seg qopts">
+            <button data-v="1">Tense / restless</button>
+            <button data-v="0">Relaxed, alert</button>
+            <button data-v="-1">Heavy / tired</button>
+          </div>
         </div>
-        <p class="muted" id="breath-desc" style="text-align:center;font-size:14px"></p>
-        <div class="row" style="justify-content:center;margin-top:12px">
-          <button class="btn primary" id="breath-btn" onclick="toggleBreath()">Begin breathing</button>
+        <div class="qz" data-q="1" style="margin-top:14px">
+          <label class="fl">Your mind right now</label>
+          <div class="seg qopts">
+            <button data-v="1">Racing, won't settle</button>
+            <button data-v="0">Clear &amp; steady</button>
+            <button data-v="-1">Foggy, hard to start</button>
+          </div>
+        </div>
+        <div class="qz" data-q="2" style="margin-top:14px">
+          <label class="fl">In the last hour</label>
+          <div class="seg qopts">
+            <button data-v="1">Stress / caffeine</button>
+            <button data-v="0">Nothing notable</button>
+            <button data-v="-1">Poor sleep / big meal</button>
+          </div>
         </div>
       </div>
-      <div id="move-block" class="hide" style="text-align:center;padding:8px 0">
-        <div class="breathwrap"><div class="orb" style="transform:scale(.9)"><div style="font-size:40px">🚶</div></div></div>
-        <p class="muted" style="font-size:14px">You're under‑aroused — breathing down would make it worse. Do <b>2–5 min of brisk movement</b> instead: walk fast, some jumping jacks, run the stairs. Come back and start the block <b>right after</b>.</p>
+      <div id="arousal-result" class="hide" style="margin-top:20px">
+        <p class="muted" id="arousal-verdict" style="text-align:center;font-size:15px"></p>
+        <div id="breath-block">
+          <div class="breathwrap">
+            <div class="orb" id="orb"><div><div class="phase" id="orb-phase">Ready</div><div class="cd" id="orb-cd"></div></div></div>
+          </div>
+          <p class="muted" id="breath-desc" style="text-align:center;font-size:14px"></p>
+          <div class="row" style="justify-content:center;margin-top:12px">
+            <button class="btn primary" id="breath-btn" onclick="toggleBreath()">Begin breathing</button>
+          </div>
+          <p class="tiny" id="breath-why" style="text-align:center;margin-top:10px;max-width:540px;margin-left:auto;margin-right:auto"></p>
+          <div id="move-note" class="hide"><p class="tiny" style="text-align:center;margin-top:2px">Even better for a flat state: a brisk 2–5 min walk or jumping jacks, then start.</p></div>
+        </div>
       </div>
       <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">← Back</button><button class="btn primary" onclick="primeDone()">I'm primed → train</button></div>
     </div>
@@ -321,7 +354,6 @@
       <div id="deep-run-outcome" style="font-size:17px;font-weight:700"></div>
     </div>
     <div style="margin-top:16px">
-      <label class="fl">Something pulling at you? Park it — don't chase it.</label>
       <div class="row"><input type="text" id="park-in" placeholder="e.g. reply to Sam, check that price" onkeydown="if(event.key==='Enter')park()"><button class="btn" onclick="park()">Park</button></div>
       <ul class="parklist" id="parklist"></ul>
     </div>
@@ -346,7 +378,11 @@
       <div class="stat"><div class="k">Do</div><div style="margin-top:6px">Walk · daylight · look far away · a few slow breaths · 10–20 min NSDR / yoga‑nidra for a deep reset</div></div>
       <div class="stat"><div class="k">Avoid</div><div style="margin-top:6px;color:var(--mut)">Feeds, email, news, anything that starts a new task in your head</div></div>
     </div>
-    <div class="row" style="margin-top:18px"><button class="btn primary" data-go="home">Done for now</button><button class="btn" data-go="prime">Another block</button></div>
+    <div id="restore-timer" style="text-align:center;margin-top:18px">
+      <div class="ringtimer" id="rest-clock">05:00</div>
+      <div class="tiny" id="rest-label" style="margin-top:4px">The break <b>is</b> the reset — walk, daylight, or NSDR. "Another block" unlocks when it's done.</div>
+    </div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" data-go="home">Done for now</button><button class="btn" id="another-block" data-go="prime" disabled>Another block</button></div>
   </div>
 </section>
 
@@ -401,6 +437,7 @@ function stopAllTimers(){
   if(typeof train!=="undefined"){ train.running=false; clearInterval(train.int); clearTimeout(train.orbTo); }
   if(typeof deep!=="undefined"){ deep.running=false; clearInterval(deep.int); }
   if(typeof pvt!=="undefined"){ pvt.running=false; clearTimeout(pvt.to); clearTimeout(pvt.leftTo); cancelAnimationFrame(pvt.raf); }
+  if(typeof restTimer!=="undefined") clearInterval(restTimer);
   if(typeof stopBreath==="function") stopBreath();
 }
 
@@ -440,57 +477,89 @@ function minutesLast(n){
 function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.length : 0; }
 
 /* ================= PRIME ================= */
-var chosenState="wired";
+var chosenState=null, arousalAns={};
 function primeStep(n){
   [1,2,3].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
   $$("#prime-dots i").forEach(function(d,i){ d.classList.toggle("on", i<n); });
-  if(n===3) applyState();
+  if(n===3) resetArousal();
 }
 $$("#residue li").forEach(function(li){ li.addEventListener("click",function(){ li.classList.toggle("done"); }); });
-$$("#statepick button").forEach(function(b){ b.addEventListener("click",function(){
-  $$("#statepick button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on");
-  chosenState=b.dataset.state; applyState();
-});});
-var breathPatterns={
-  wired:{name:"Cyclic sighing", desc:"Two inhales through the nose, then a long slow exhale through the mouth.", phases:[["Inhale",2000],["Inhale a bit more",1000],["Long exhale…",6000]]},
-  neutral:{name:"Box breathing", desc:"Equal in, hold, out, hold. Steadies you at the center.", phases:[["Inhale",4000],["Hold",4000],["Exhale",4000],["Hold",4000]]},
-  groggy:null
+
+/* arousal questionnaire -> matched, time-bounded breathing protocol */
+var PROTOCOLS={
+  wired:{ label:"You're wired — let's down-shift.", name:"Cyclic sighing", desc:"Two inhales through the nose, then a long, slow exhale through the mouth.", why:"Extended exhales raise vagal tone and drop heart rate — the fastest way to calm a stressed system (Balban 2023, Stanford RCT). ~3 min gives a clear acute shift.", minutes:3, phases:[["Inhale",1800],["Inhale a bit more",1000],["Long exhale…",6000]] },
+  neutral:{ label:"You're about right — let's lock it in.", name:"Coherent breathing", desc:"Smooth and even: in for 4, out for 6.", why:"~5–6 breaths a minute peaks heart-rate variability — the signature of the calm-alert middle of the arousal curve. A minute settles you in.", minutes:1.5, phases:[["Inhale",4000],["Exhale",6000]] },
+  groggy:{ label:"You're flat — let's lift you.", name:"Energizing breath", desc:"Brisker, inhale-led breathing to raise alertness. Stop if you feel lightheaded.", why:"Faster, inhale-emphasized breathing nudges sympathetic activity up — the opposite lever from calming. Keep it short; a brisk walk works even better.", minutes:2, phases:[["Brisk inhale",1400],["Short exhale",1400]] }
 };
-function applyState(){
-  var p=breathPatterns[chosenState];
-  $("#breath-block").classList.toggle("hide", !p);
-  $("#move-block").classList.toggle("hide", !!p);
-  if(p){ $("#breath-desc").textContent=p.name+" — "+p.desc; stopBreath(); $("#orb-phase").textContent="Ready"; $("#orb-cd").textContent=""; $("#breath-btn").textContent="Begin breathing"; }
+function fmtMin(m){ return (m%1? m.toFixed(1):m)+" min"; }
+function resetArousal(){
+  arousalAns={}; chosenState=null;
+  $$("#arousal-quiz .qopts button").forEach(function(b){ b.classList.remove("on"); });
+  $("#arousal-result").classList.add("hide");
+  stopBreath();
 }
-var breath={on:false,raf:0,to:0,idx:0,cycleStart:0,pattern:null,total:0,startedAt:0,scale:0.62};
+$$("#arousal-quiz .qz").forEach(function(qz){
+  var q=qz.dataset.q, opts=[].slice.call(qz.querySelectorAll("button"));
+  opts.forEach(function(b){ b.addEventListener("click",function(){
+    opts.forEach(function(x){x.classList.remove("on");}); b.classList.add("on");
+    arousalAns[q]=+b.dataset.v;
+    if(Object.keys(arousalAns).length===3) scoreArousal();
+  });});
+});
+function scoreArousal(){
+  var sum=(arousalAns[0]||0)+(arousalAns[1]||0)+(arousalAns[2]||0);
+  chosenState= sum>=2?"wired" : (sum<=-2?"groggy":"neutral");
+  var p=PROTOCOLS[chosenState];
+  $("#arousal-verdict").innerHTML="<b>"+p.label+"</b>";
+  $("#breath-desc").textContent=p.name+" — "+p.desc;
+  $("#breath-why").textContent=p.why;
+  $("#move-note").classList.toggle("hide", chosenState!=="groggy");
+  $("#orb-phase").textContent="Ready"; $("#orb-cd").textContent="";
+  $("#breath-btn").textContent="Begin breathing · "+fmtMin(p.minutes);
+  $("#arousal-result").classList.remove("hide");
+  stopBreath();
+}
+var breath={on:false,raf:0,to:0,idx:0,scale:0.62,endAt:0,timer:0};
 function toggleBreath(){ breath.on? stopBreath() : startBreath(); }
 function startBreath(){
-  var p=breathPatterns[chosenState]; if(!p) return;
-  breath.on=true; breath.pattern=p.phases; breath.idx=0; breath.startedAt=performance.now();
+  var p=PROTOCOLS[chosenState]; if(!p) return;
+  breath.on=true; breath.idx=0; breath.endAt=performance.now()+p.minutes*60000;
   $("#breath-btn").textContent="Stop";
-  runPhase($("#orb"),$("#orb-phase"),$("#orb-cd"),p.phases,function(){});
+  runPhase($("#orb"),$("#orb-phase"),$("#orb-cd"),p.phases);
+  breathTick();
+}
+function breathTick(){
+  if(!breath.on) return;
+  if(breath.endAt-performance.now()<=0){ breathComplete(); return; }
+  breath.timer=setTimeout(breathTick,250);
+}
+function breathComplete(){
+  breath.on=false; cancelAnimationFrame(breath.raf); clearTimeout(breath.to); clearTimeout(breath.timer);
+  var o=$("#orb"); if(o){o.style.transition="transform 1s ease"; o.style.transform="scale(.8)";}
+  $("#orb-phase").textContent="Primed ✓"; $("#orb-cd").textContent="";
+  $("#breath-desc").textContent="You're at the optimal arousal for deep work — start your block.";
+  var b=$("#breath-btn"); if(b) b.textContent="Done ✓";
+  try{ chime(528,1); }catch(e){}
 }
 function stopBreath(){
-  breath.on=false; cancelAnimationFrame(breath.raf); clearTimeout(breath.to);
+  breath.on=false; cancelAnimationFrame(breath.raf); clearTimeout(breath.to); clearTimeout(breath.timer);
   var o=$("#orb"); if(o){o.style.transition="transform .6s ease"; o.style.transform="scale(.62)";}
-  var b=$("#breath-btn"); if(b) b.textContent="Begin breathing";
+  var b=$("#breath-btn"); if(b && chosenState){ b.textContent="Begin breathing · "+fmtMin(PROTOCOLS[chosenState].minutes); }
 }
-function runPhase(orb,phaseEl,cdEl,phases,onCycle){
+function runPhase(orb,phaseEl,cdEl,phases){
   if(!breath.on) return;
-  var ph=phases[breath.idx%phases.length];
-  var label=ph[0], dur=ph[1];
+  var ph=phases[breath.idx%phases.length], label=ph[0], dur=ph[1];
   phaseEl.textContent=label;
-  var grow=/inhale/i.test(label);
-  var hold=/hold/i.test(label);
+  var grow=/inhale/i.test(label), hold=/hold/i.test(label);
   orb.style.transition="transform "+(hold?0.2:dur/1000)+"s cubic-bezier(.4,0,.2,1)";
-  if(grow) breath.scale=1.0; else if(!hold) breath.scale=0.62; // hold keeps current scale
+  if(grow) breath.scale=1.0; else if(!hold) breath.scale=0.62;
   orb.style.transform="scale("+breath.scale+")";
   var start=performance.now();
   function tick(){
     if(!breath.on) return;
-    var el=performance.now()-start, left=Math.max(0,dur-el);
-    cdEl.textContent=Math.ceil(left/1000)+"s";
-    if(el>=dur){ breath.idx++; if(breath.idx%phases.length===0) onCycle(); runPhase(orb,phaseEl,cdEl,phases,onCycle); }
+    var el=performance.now()-start;
+    cdEl.textContent=Math.max(0,Math.ceil((breath.endAt-performance.now())/1000))+"s left";
+    if(el>=dur){ breath.idx++; runPhase(orb,phaseEl,cdEl,phases); }
     else breath.raf=requestAnimationFrame(tick);
   }
   breath.raf=requestAnimationFrame(tick);
@@ -635,10 +704,24 @@ function deepStop(early){
   $("#park-recall").innerHTML = deep.parks.length? ("You parked "+deep.parks.length+" thing"+(deep.parks.length>1?"s":"")+": "+deep.parks.map(function(p){return "“"+p+"”";}).join(", ")+". They're in your schedule's impulse list now.") : "Nothing pulled you away — clean block.";
 }
 $$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; }); });
+var restTimer=0;
+function startRestore(){
+  clearInterval(restTimer);
+  var mins=Math.min(15,Math.max(3,Math.round((deep.actual||50)/10)));
+  var end=Date.now()+mins*60000;
+  var ab=$("#another-block"); if(ab) ab.disabled=true;
+  function tick(){
+    var left=(end-Date.now())/1000;
+    if(left<=0){ clearInterval(restTimer); if($("#rest-clock"))$("#rest-clock").textContent="00:00"; if($("#rest-label"))$("#rest-label").textContent="Reset complete — go again if you want."; if(ab) ab.disabled=false; return; }
+    if($("#rest-clock"))$("#rest-clock").textContent=fmt(left);
+  }
+  tick(); restTimer=setInterval(tick,1000);
+}
 function deepSave(){
   state.deep.push({t:Date.now(),min:deep.actual,rating:deep.rating||null,parks:deep.parks.length});
   markDay(); save();
   $("#deep-done").classList.add("hide"); $("#deep-restore").classList.remove("hide");
+  startRestore();
 }
 
 /* ================= PROGRESS ================= */
@@ -696,6 +779,14 @@ function barChart(data){
 }
 
 /* ---- misc ---- */
+function toggleReset(){ var c=$("#reset-confirm"); if(!c) return; c.classList.toggle("hide"); if(!c.classList.contains("hide")){ var w=$("#reset-word"); if(w){ w.value=""; w.focus(); } } }
+function confirmReset(){
+  var w=$("#reset-word"), v=((w&&w.value)||"").trim().toLowerCase();
+  if(v!=="hone"){ toast("Type HONE exactly to confirm."); return; }
+  state={tests:[],trains:[],deep:[],days:[]}; save();
+  var c=$("#reset-confirm"); if(c) c.classList.add("hide");
+  renderProgress(); toast("All data cleared.");
+}
 function wipe(){ if(confirm("Erase all your HONE data on this device?")){ state={tests:[],trains:[],deep:[],days:[]}; save(); renderProgress(); toast("Data cleared."); } }
 
 /* seed friendly first-run */
