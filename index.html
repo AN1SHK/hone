@@ -787,8 +787,8 @@ function barChart(data){
 /* ---- misc ---- */
 function toggleReset(){ var c=$("#reset-confirm"); if(!c) return; c.classList.toggle("hide"); if(!c.classList.contains("hide")){ var w=$("#reset-word"); if(w){ w.value=""; w.focus(); } } }
 function confirmReset(){
-  var w=$("#reset-word"), v=((w&&w.value)||"").trim().toLowerCase();
-  if(v!=="hone"){ toast("Type HONE exactly to confirm."); return; }
+  var w=$("#reset-word"), v=(w&&w.value)||"";      // exact, case-sensitive: only "HONE" wipes
+  if(v!=="HONE"){ toast("Type HONE exactly, in capitals, to confirm."); return; }
   state={tests:[],trains:[],deep:[],days:[]}; save();
   var c=$("#reset-confirm"); if(c) c.classList.add("hide");
   renderProgress(); toast("All data cleared.");
