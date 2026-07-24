@@ -178,13 +178,9 @@
   .restlist.no li{color:var(--mut)}
   .restlist.no li::before{content:"✕";position:absolute;left:0;color:var(--rose);font-weight:800}
   .spectrum{display:flex;gap:6px}
-  .spectrum button{flex:1;padding:15px 0;border:1px solid var(--line);border-radius:6px;font-weight:800;font-size:17px;cursor:pointer;color:var(--tx);transition:.12s}
-  .spectrum button[data-r="1"]{background:#f6f4ee}
-  .spectrum button[data-r="2"]{background:#e6e4dc}
-  .spectrum button[data-r="3"]{background:#c6c8cc}
-  .spectrum button[data-r="4"]{background:#8a9099;color:#fff}
-  .spectrum button[data-r="5"]{background:#2b333c;color:#fff}
-  .spectrum button.on{transform:scale(1.14);z-index:1;box-shadow:0 6px 18px rgba(43,51,60,.22)}
+  .spectrum button{flex:1;padding:15px 0;border:1px solid var(--line);border-radius:6px;font-weight:800;font-size:17px;cursor:pointer;color:var(--tx);background:#fff;transition:.12s}
+  .spectrum button:hover{border-color:var(--mut)}
+  .spectrum button.on{background:var(--acc);color:#fff;border-color:var(--acc);transform:scale(1.12);z-index:1;box-shadow:0 6px 18px rgba(43,51,60,.22)}
 </style>
 </head>
 <body>
@@ -321,6 +317,7 @@
         <button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button>
       </div>
       <div class="row spread" style="margin-top:7px"><span class="tiny">← Scattered</span><span class="tiny">Locked in →</span></div>
+      <div class="muted" id="rate-label" style="margin-top:12px;font-size:15px;font-weight:700;min-height:20px"></div>
     </div>
     <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" onclick="deepSave()">Save &amp; restore</button></div>
   </div>
@@ -331,6 +328,7 @@
       <div class="stat">
         <div class="k">Do</div>
         <ul class="restlist do">
+          <li><b>Leave the work room</b> — you must step out of where you work, every break</li>
           <li><b>Get into daylight</b> — sunlight resets alertness and steadies your body clock</li>
           <li><b>Walk, no phone</b> — clears the mental fatigue that builds up under focus</li>
           <li><b>Look far away</b> — a long, soft gaze relaxes the eyes and the mind with them</li>
@@ -404,6 +402,7 @@ document.addEventListener("click",function(e){
    re-firing the end chime (the "constant chime" bug) and stops stacked intervals. */
 function stopAllTimers(){
   if(typeof deep!=="undefined"){ deep.running=false; clearInterval(deep.int); clearInterval(deep.impInt); }
+  document.title="HONE";
   if(typeof pvt!=="undefined"){ pvt.running=false; clearTimeout(pvt.to); clearTimeout(pvt.leftTo); cancelAnimationFrame(pvt.raf); }
   if(typeof restTimer!=="undefined") clearInterval(restTimer);
   if(typeof stopBreath==="function") stopBreath();
@@ -597,25 +596,28 @@ function deepStart(){
   $("#deep-setup").classList.add("hide"); $("#deep-run").classList.remove("hide");
   $("#deep-run-outcome").textContent=($("#in-outcome")&&$("#in-outcome").value.trim())||"your one task";
   $("#deep-clock").textContent=fmt(deep.left);
+  document.title=fmt(deep.left)+" · HONE";
   startImpulseWatch();
   deep.int=setInterval(function(){
-    deep.left--; $("#deep-clock").textContent=fmt(deep.left);
+    deep.left--; $("#deep-clock").textContent=fmt(deep.left); document.title=fmt(deep.left)+" · HONE";
     if(!deep.mid && deep.left<=deep.min*60/2){ deep.mid=true; toast("Halfway. Re‑read your intention, then keep going — don't switch tasks."); }
     if(deep.left<=0) deepStop(false);
   },1000);
 }
 function deepStop(early){
   if(!deep.running) return;   // guard against re-entry / orphaned ticks
-  deep.running=false; clearInterval(deep.int); stopImpulseWatch();
+  deep.running=false; clearInterval(deep.int); stopImpulseWatch(); document.title="HONE";
   var done=Math.round((deep.min*60-deep.left)/60);
   deep.actual= early? Math.max(1,done): deep.min;
   function showCaught(){ var dc=$("#deep-done-caught"); if(dc) dc.textContent= deep.catches? ("You caught "+deep.catches+" urge"+(deep.catches>1?"s":"")+" to switch — logged, not obeyed.") : ""; }
+  $$("#rate button").forEach(function(x){x.classList.remove("on");}); if($("#rate-label")) $("#rate-label").textContent="";
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.remove("hide");
   chime(440,1.2);
   showCaught();
   impulseKeys().then(function(keys){ if(keys) keys.forEach(function(k){ if(!deep.impKnown[k]){ deep.impKnown[k]=1; deep.catches++; } }); showCaught(); });  // final sweep so a just-caught urge isn't missed
 }
-$$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; }); });
+var RATE_LABELS={1:"Scattered",2:"Distracted",3:"Steady",4:"Focused",5:"Locked in"};
+$$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; var rl=$("#rate-label"); if(rl) rl.textContent=deep.rating+" · "+RATE_LABELS[deep.rating]; }); });
 var restTimer=0;
 function startRestore(){
   clearInterval(restTimer);
@@ -638,9 +640,19 @@ function deepSave(){
 
 /* ================= PROGRESS ================= */
 function renderProgress(){
-  $("#p-chart-min").innerHTML = state.deep.length? barChart(deepSeries()) : emptyBox("No deep-work blocks yet.");
-  var mc=state.deep.map(function(x){return x.catches||0;});
-  $("#p-chart-meta").innerHTML = mc.length? lineChart(mc,{min:0,max:Math.max(3,Math.ceil(Math.max.apply(null,mc))),accent:"var(--violet)"}) : emptyBox("No deep-work blocks yet.");
+  $("#p-chart-min").innerHTML = state.deep.length? dayChart(deepSeries(),{accent:"var(--acc)",fill:true,id:"min"}) : emptyBox();
+  $("#p-chart-meta").innerHTML = state.deep.length? dayChart(metaSeries(),{accent:"var(--violet)",fill:false,id:"meta"}) : emptyBox();
+}
+function metaSeries(){
+  var byDay={}, order=[];
+  state.deep.forEach(function(x){
+    var d=new Date(x.t), key=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    if(!byDay[key]){ byDay[key]={v:0,t:x.t,lbl:d.toLocaleDateString(undefined,{month:"numeric",day:"numeric"})}; order.push(key); }
+    byDay[key].v += (x.catches||0);
+    if(x.t < byDay[key].t) byDay[key].t = x.t;
+  });
+  order.sort(function(a,b){ return byDay[a].t - byDay[b].t; });
+  return { vals: order.map(function(k){return byDay[k].v;}), lbls: order.map(function(k){return byDay[k].lbl;}) };
 }
 function deepSeries(){
   var byDay={}, order=[];
@@ -655,7 +667,24 @@ function deepSeries(){
 }
 
 /* ---- charts (inline SVG) ---- */
-function emptyBox(msg){ return '<div class="empty">'+msg+'</div>'; }
+function emptyBox(){ return '<div class="empty" style="min-height:70px"></div>'; }
+function dayChart(data,opt){
+  opt=opt||{};
+  var vals=data.vals, lbls=data.lbls, n=vals.length;
+  var W=680,H=200,pad=26,pl=40,bottom=H-24;
+  var max=Math.max.apply(null,vals); if(max<=0) max=1; max=Math.ceil(max*1.15)||1;
+  var acc=opt.accent||"var(--acc)";
+  var x=function(i){ return n<=1? pl+(W-pl-pad)/2 : pl+i*(W-pl-pad)/(n-1); };
+  var y=function(v){ return pad+(1-v/max)*(bottom-pad); };
+  var grid="";
+  for(var g=0;g<=2;g++){ var gv=max*g/2, gy=y(gv); grid+='<line class="gl" x1="'+pl+'" y1="'+gy+'" x2="'+(W-pad)+'" y2="'+gy+'"/><text class="lbl" x="'+(pl-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(gv)+'</text>'; }
+  var pts=vals.map(function(v,i){return x(i)+","+y(v);});
+  var fill = (opt.fill && n>1)? '<path d="M'+pts.join(" L")+" L"+x(n-1)+","+bottom+" L"+x(0)+","+bottom+' Z" fill="url(#g_'+opt.id+')"/>' : "";
+  var line = n>1? '<polyline points="'+pts.join(" ")+'" fill="none" stroke="'+acc+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' : "";
+  var dots = vals.map(function(v,i){ return '<circle cx="'+x(i)+'" cy="'+y(v)+'" r="4.5" fill="#fff" stroke="'+acc+'" stroke-width="2.5"/><text class="lbl" x="'+x(i)+'" y="'+(y(v)-10)+'" text-anchor="middle" fill="var(--tx)" font-weight="700">'+v+'</text>'; }).join("");
+  var xl = lbls.map(function(l,i){ return '<text class="lbl" x="'+x(i)+'" y="'+(H-7)+'" text-anchor="middle">'+l+'</text>'; }).join("");
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img"><defs><linearGradient id="g_'+opt.id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+acc+'" stop-opacity=".25"/><stop offset="1" stop-color="'+acc+'" stop-opacity="0"/></linearGradient></defs>'+grid+fill+line+dots+xl+'</svg>';
+}
 function lineChart(vals,opt){
   opt=opt||{};
   var W=680,H=180,pad=28, pl=38;
