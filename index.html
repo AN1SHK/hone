@@ -175,12 +175,7 @@
 <body>
 <header>
   <div class="bar">
-    <div class="logo"><span class="dot"></span>HONE</div>
-    <nav id="nav">
-      <button data-go="home" class="on">Home</button>
-      <button data-go="prime">Session</button>
-      <button data-go="progress">Progress</button>
-    </nav>
+    <div class="logo" data-go="home" style="cursor:pointer"><span class="dot"></span>HONE</div>
   </div>
 </header>
 
@@ -194,12 +189,17 @@
     </div>
   </div>
 
-  <div class="grid g2" style="margin-top:16px">
-    <div class="stat"><div class="k">Focus minutes (7d)</div><div class="v" id="h-min">—</div><div class="delta muted" id="h-min-sub"></div></div>
-    <div class="stat"><div class="k">Meta‑awareness</div><div class="v" id="h-cpm">—</div><div class="delta muted">catches / min</div></div>
+    <div class="card" style="margin-top:20px">
+    <div class="row spread"><h2>Progress</h2><button class="btn ghost tiny" onclick="wipe()" style="padding:8px 12px">Reset data</button></div>
+    <div class="grid g3" style="margin-top:8px">
+      <div class="stat"><div class="k">Sessions</div><div class="v" id="p-sessions">0</div></div>
+      <div class="stat"><div class="k">Focus minutes total</div><div class="v" id="p-minutes">0</div></div>
+      <div class="stat"><div class="k">Streak</div><div class="v" id="p-streak">0</div></div>
+    </div>
   </div>
-
-  </section>
+  <div class="card"><h3>Deep‑work minutes <span class="tiny" style="text-transform:none;letter-spacing:0">— last 14 days</span></h3><div id="p-chart-min"></div></div>
+  <div class="card"><h3>Meta‑awareness <span class="tiny" style="text-transform:none;letter-spacing:0">— catches per minute; trending down = fewer wanders</span></h3><div id="p-chart-cpm"></div></div>
+</section>
 
 <!-- ============ PRIME / SESSION ============ -->
 <section class="screen" id="s-prime">
@@ -209,12 +209,10 @@
     <!-- step 1: intention -->
     <div id="prime-1">
       <h2>Set your intention</h2>
-      <p class="sub">One clear outcome and a pre‑decided response beats willpower. This is the single most evidence‑backed step here.</p>
       <div style="margin-top:18px">
         <div class="field"><label class="fl">Outcome</label><input type="text" id="in-outcome" placeholder=""></div>
         <div class="field"><label class="fl">First tiny action</label><input type="text" id="in-first" placeholder=""></div>
       </div>
-      <p class="why"><b>Implementation intentions</b> (if‑then plans) roughly double goal follow‑through — Gollwitzer &amp; Sheeran, d = 0.65.</p>
       <div class="row" style="margin-top:18px"><button class="btn primary" onclick="primeStep(2)">Next →</button></div>
     </div>
 
@@ -228,7 +226,6 @@
         <li data-c><span class="box"></span><span>Write a one‑line "parked" note on whatever you were doing before</span></li>
         <li data-c><span class="box"></span><span>Silence notifications / go do‑not‑disturb</span></li>
       </ul>
-      <p class="why"><b>Attention residue</b> — Leroy 2009. Making a clean break, not just intending to, is what removes it.</p>
       <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">← Back</button><button class="btn primary" onclick="primeStep(3)">Next →</button></div>
     </div>
 
@@ -254,7 +251,6 @@
         <div class="breathwrap"><div class="orb" style="transform:scale(.9)"><div style="font-size:40px">🚶</div></div></div>
         <p class="muted" style="font-size:14px">You're under‑aroused — breathing down would make it worse. Do <b>2–5 min of brisk movement</b> instead: walk fast, some jumping jacks, run the stairs. Come back and start the block <b>right after</b>.</p>
       </div>
-      <p class="why"><b>Yerkes‑Dodson / LC‑NE:</b> a long exhale down‑regulates a wired state (Balban 2023); acute movement lifts a flat one (small but real). Match the lever to the state.</p>
       <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">← Back</button><button class="btn primary" onclick="primeDone()">I'm primed → train</button></div>
     </div>
   </div>
@@ -274,7 +270,6 @@
       <button data-min="20">20 min</button>
     </div>
     <p class="tiny" id="train-suggest" style="margin-top:12px"></p>
-    <p class="why"><b>Focused‑attention meditation</b> is the most replicated attention intervention; the active ingredient is <b>meta‑awareness</b> — noticing the drift. 12–20 min/day, most days, over 4+ weeks moves the needle.</p>
     <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="trainStart()">Begin</button><label class="chip" style="cursor:pointer"><input type="checkbox" id="train-sound" checked style="width:auto;accent-color:var(--acc)"> chime</label></div>
   </div>
 
@@ -314,7 +309,6 @@
       <button data-min="50" class="on">50 min</button>
       <button data-min="90">90 min</button>
     </div>
-    <p class="why"><b>Progressive blocks + goal‑reactivation:</b> a brief mid‑block reset fights the vigilance decrement (Ariga &amp; Lleras). 90 min is a ceiling, not a biological law.</p>
     <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start block</button></div>
   </div>
 
@@ -352,20 +346,6 @@
     </div>
     <div class="row" style="margin-top:18px"><button class="btn primary" data-go="home">Done for now</button><button class="btn" data-go="prime">Another block</button></div>
   </div>
-</section>
-
-<!-- ============ PROGRESS ============ -->
-<section class="screen" id="s-progress">
-  <div class="card" style="margin-top:20px">
-    <div class="row spread"><h2>Progress</h2><button class="btn ghost tiny" onclick="wipe()" style="padding:8px 12px">Reset data</button></div>
-    <div class="grid g3" style="margin-top:8px">
-      <div class="stat"><div class="k">Sessions</div><div class="v" id="p-sessions">0</div></div>
-      <div class="stat"><div class="k">Focus minutes total</div><div class="v" id="p-minutes">0</div></div>
-      <div class="stat"><div class="k">Streak</div><div class="v" id="p-streak">0</div></div>
-    </div>
-  </div>
-  <div class="card"><h3>Deep‑work minutes <span class="tiny" style="text-transform:none;letter-spacing:0">— last 14 days</span></h3><div id="p-chart-min"></div></div>
-  <div class="card"><h3>Meta‑awareness <span class="tiny" style="text-transform:none;letter-spacing:0">— catches per minute; trending down = fewer wanders</span></h3><div id="p-chart-cpm"></div></div>
 </section>
 
 </div>
@@ -406,7 +386,6 @@ function go(id){
   $$("#nav button").forEach(function(b){b.classList.toggle("on", b.dataset.go===id);});
   window.scrollTo({top:0,behavior:"smooth"});
   if(id==="home") renderHome();
-  if(id==="progress") renderProgress();
   if(id==="prime"){ primeStep(1); }
   if(id==="train"){ resetTrainUI(); }
   if(id==="deep"){ resetDeepUI(); }
@@ -447,15 +426,7 @@ function chime(freq,dur){
 function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; return (m<10?"0":"")+m+":"+(r<10?"0":"")+r; }
 
 /* ================= HOME ================= */
-function renderHome(){
-  var _g=$("#greeting"); if(_g) _g.textContent = greet();
-  var _s=$("#streak"); if(_s) _s.textContent = streak();
-  var mins=minutesLast(7);
-  $("#h-min").textContent = mins;
-  $("#h-min-sub").textContent = state.deep.length+" blocks all-time";
-  var cpm = state.trains.length? (avg(state.trains.map(function(t){return t.cpm;})).toFixed(1)) : "—";
-  $("#h-cpm").textContent = cpm;
-}
+function renderHome(){ renderProgress(); }
 function greet(){ var h=new Date().getHours(); var g=h<12?"Good morning.":h<18?"Good afternoon.":"Good evening."; return g+" Train your attention."; }
 function minutesLast(n){
   var cut=new Date(); cut.setDate(cut.getDate()-n);
