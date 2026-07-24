@@ -419,12 +419,29 @@ function showTopbar(){}
 function hideTopbar(){}
 var alarmTimers=[];
 function stopAlarm(){ alarmTimers.forEach(function(t){clearTimeout(t);}); alarmTimers=[]; }
+function alarmBeep(freq,dur,vol){
+  try{
+    if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended") AC.resume();
+    var o=AC.createOscillator(), g=AC.createGain();
+    o.type="square"; o.frequency.value=freq;                 // square = harsh/urgent, not calming
+    o.connect(g); g.connect(AC.destination);
+    var t=AC.currentTime;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol,t+0.008);
+    g.gain.setValueAtTime(vol,t+dur-0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.start(t); o.stop(t+dur+0.02);
+  }catch(e){}
+}
 function alarm(){
   stopAlarm();
   try{ if(AC && AC.state==="suspended") AC.resume(); }catch(e){}
-  for(var i=0;i<11;i++){                                  // ~15s of gentle double-beeps
-    alarmTimers.push(setTimeout(function(){ try{chime(880,0.28);}catch(e){} }, i*1400));
-    alarmTimers.push(setTimeout(function(){ try{chime(1175,0.5);}catch(e){} }, i*1400+320));
+  for(var c=0;c<26;c++){                                      // ~31s of loud urgent triple-beeps
+    var base=c*1200;
+    alarmTimers.push(setTimeout(function(){alarmBeep(1245,0.14,0.45);},base));
+    alarmTimers.push(setTimeout(function(){alarmBeep(1245,0.14,0.45);},base+190));
+    alarmTimers.push(setTimeout(function(){alarmBeep(1660,0.16,0.45);},base+380));
   }
 }
 document.addEventListener("click", stopAlarm);   // any tap back in silences it
