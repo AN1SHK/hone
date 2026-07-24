@@ -310,7 +310,6 @@
     <div class="ringtimer" id="train-clock">05:00</div>
     <div class="breathwrap"><div class="orb" id="train-orb" style="width:200px;height:200px;transform:scale(.7)"><div class="phase" id="train-phase" style="font-size:16px">Breathe</div></div></div>
     <button class="catchbtn" id="catchbtn" onclick="doCatch()">Caught it<span class="c" id="catch-c">0 catches — each one is a rep</span></button>
-    <p class="muted" style="margin-top:14px;font-size:13.5px" id="train-encourage">Catching a wander isn't failing. It's the moment the muscle works.</p>
     <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost" onclick="trainStop(true)">End early</button></div>
   </div>
 
@@ -625,8 +624,6 @@ function doCatch(){
   train.catches++;
   var b=$("#catchbtn"); b.classList.remove("ping"); void b.offsetWidth; b.classList.add("ping");
   $("#catch-c").textContent=train.catches+" catch"+(train.catches>1?"es":"")+" — nicely noticed";
-  var msgs=["That's the rep. Return to the breath.","Good — you noticed. Come back.","Every catch strengthens the muscle.","Well caught. Back to the anchor."];
-  $("#train-encourage").textContent=msgs[train.catches%msgs.length];
 }
 function trainStop(early){
   if(!train.running) return;   // guard: a stopped session can never re-fire the chime
