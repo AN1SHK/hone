@@ -304,6 +304,7 @@
     <label class="fl" style="margin-top:16px">Block length</label>
     <div class="durgrid" id="deep-dur"></div>
     <div class="tiny" id="deep-rec" style="margin-top:10px;color:var(--mut)"></div>
+    <label class="chip" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin-top:16px"><input type="checkbox" id="deep-noise" style="width:auto;accent-color:var(--acc)"> Brown noise <span class="tiny" style="color:var(--mut)">— masks distractions, keep it low</span></label>
     <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start</button></div>
   </div>
 
@@ -608,6 +609,7 @@ function resetDeepUI(){
   var opts=LADDER.slice(); if(opts.indexOf(rec)<0){ opts.push(rec); opts.sort(function(a,b){return a-b;}); }
   $("#deep-dur").innerHTML=opts.map(function(v){ return '<button data-min="'+v+'"'+(v===rec?' class="on"':'')+'>'+v+'</button>'; }).join("");
   var cap=$("#deep-rec"); if(cap) cap.textContent="Recommended: "+rec+" min";
+  if($("#deep-noise")) $("#deep-noise").checked=!!state.noise;
 }
 (function(){ var dd=$("#deep-dur"); if(dd) dd.addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return; $$("#deep-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.min=+b.dataset.min; }); })();
 function suggestDeep(){
@@ -651,6 +653,22 @@ function stopImpulseWatch(){ clearInterval(deep.impInt); }
 var TIMER_URL="https://my-schedule-a0ded-default-rtdb.firebaseio.com/hone_timer.json";
 function publishTimer(){ try{ fetch(TIMER_URL,{method:"PUT",body:JSON.stringify({end:Date.now()+deep.left*1000,task:($("#in-outcome")&&$("#in-outcome").value.trim())||"deep work"})}).catch(function(){}); }catch(e){} }
 function clearTimer(){ try{ fetch(TIMER_URL,{method:"PUT",body:"null"}).catch(function(){}); }catch(e){} }
+var noiseSrc=null;
+function startNoise(){
+  try{
+    if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended") AC.resume();
+    stopNoise();
+    var len=Math.floor(AC.sampleRate*3), buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0), last=0;
+    for(var i=0;i<len;i++){ var w=Math.random()*2-1; last=(last+0.02*w)/1.02; d[i]=last*3.5; }   // brown = integrated white
+    var src=AC.createBufferSource(); src.buffer=buf; src.loop=true;
+    var g=AC.createGain(); g.gain.value=0.12;                 // low: just enough to blur distractions
+    src.connect(g); g.connect(AC.destination); src.start();
+    noiseSrc=src;
+  }catch(e){}
+}
+function stopNoise(){ try{ if(noiseSrc){ noiseSrc.stop(); noiseSrc.disconnect(); noiseSrc=null; } }catch(e){} }
+(function(){ var n=$("#deep-noise"); if(n) n.addEventListener("change",function(){ state.noise=n.checked; save(); if(deep.running){ n.checked?startNoise():stopNoise(); } }); })();
 function deepStart(){
   clearInterval(deep.int);   // never stack timers
   deep.left=deep.min*60; deep.parks=[]; deep.rating=0; deep.mid=false; deep.running=true;
@@ -660,6 +678,7 @@ function deepStart(){
   showTopbar(); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left); askNotify();
   startImpulseWatch();
   publishTimer(); requestWake();
+  if($("#deep-noise")&&$("#deep-noise").checked) startNoise();
   deep.int=setInterval(function(){
     deep.left--; $("#deep-clock").textContent=fmt(deep.left); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left);
     if(!deep.mid && deep.left<=deep.min*60/2){ deep.mid=true; toast("Halfway. Re‑read your intention, then keep going — don't switch tasks."); }
@@ -668,7 +687,7 @@ function deepStart(){
 }
 function deepStop(early){
   if(!deep.running) return;   // guard against re-entry / orphaned ticks
-  deep.running=false; clearInterval(deep.int); stopImpulseWatch(); hideTopbar(); clearTimer();
+  deep.running=false; clearInterval(deep.int); stopImpulseWatch(); hideTopbar(); clearTimer(); stopNoise();
   var done=Math.round((deep.min*60-deep.left)/60);
   deep.actual= early? Math.max(1,done): deep.min;
   function showCaught(){ var dc=$("#deep-done-caught"); if(dc) dc.textContent= deep.catches? ("You caught "+deep.catches+" urge"+(deep.catches>1?"s":"")+" to switch — logged, not obeyed.") : ""; }
