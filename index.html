@@ -189,16 +189,8 @@
     </div>
   </div>
 
-    <div class="card" style="margin-top:20px">
-    <div class="row spread"><h2>Progress</h2><button class="btn ghost tiny" onclick="wipe()" style="padding:8px 12px">Reset data</button></div>
-    <div class="grid g3" style="margin-top:8px">
-      <div class="stat"><div class="k">Sessions</div><div class="v" id="p-sessions">0</div></div>
-      <div class="stat"><div class="k">Focus minutes total</div><div class="v" id="p-minutes">0</div></div>
-      <div class="stat"><div class="k">Streak</div><div class="v" id="p-streak">0</div></div>
-    </div>
-  </div>
-  <div class="card"><h3>Deep‑work minutes <span class="tiny" style="text-transform:none;letter-spacing:0">— last 14 days</span></h3><div id="p-chart-min"></div></div>
-  <div class="card"><h3>Meta‑awareness <span class="tiny" style="text-transform:none;letter-spacing:0">— catches per minute; trending down = fewer wanders</span></h3><div id="p-chart-cpm"></div></div>
+    <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
+  <div class="card"><h3>Meta‑awareness</h3><div id="p-chart-cpm"></div></div>
 </section>
 
 <!-- ============ PRIME / SESSION ============ -->
@@ -219,12 +211,21 @@
     <!-- step 2: residue -->
     <div id="prime-2" class="hide">
       <h2>Clear the residue</h2>
-      <p class="sub">Switching tasks with an unfinished one leaves "attention residue" that quietly degrades the next block. Close the loops now.</p>
       <ul class="check" id="residue" style="margin-top:18px">
-        <li data-c><span class="box"></span><span>Phone out of reach — another room or a drawer</span></li>
-        <li data-c><span class="box"></span><span>Close every tab and app not needed for this outcome</span></li>
-        <li data-c><span class="box"></span><span>Write a one‑line "parked" note on whatever you were doing before</span></li>
-        <li data-c><span class="box"></span><span>Silence notifications / go do‑not‑disturb</span></li>
+        <li data-c><span class="box"></span><span>Phone in another room or a drawer — face down and silenced</span></li>
+        <li data-c><span class="box"></span><span>Quit Slack, email, and messaging apps completely (not just muted)</span></li>
+        <li data-c><span class="box"></span><span>Close every browser tab and app not needed for this one outcome</span></li>
+        <li data-c><span class="box"></span><span>Turn on Do Not Disturb / Focus mode on every device</span></li>
+        <li data-c><span class="box"></span><span>Clear your desk of anything unrelated to the task</span></li>
+        <li data-c><span class="box"></span><span>Water within reach; use the bathroom now</span></li>
+        <li data-c><span class="box"></span><span>Write a one-line "parked" note on whatever you were doing before</span></li>
+        <li data-c><span class="box"></span><span>Brain-dump any nagging to-dos so they're out of your head ("Hey Siri, impulse")</span></li>
+        <li data-c><span class="box"></span><span>Decide the single next action so starting takes zero thought</span></li>
+        <li data-c><span class="box"></span><span>Confirm your end time — know exactly when this block stops</span></li>
+        <li data-c><span class="box"></span><span>Tell anyone nearby you're heads-down for the next block</span></li>
+        <li data-c><span class="box"></span><span>Headphones on / ambient sound set — or silence, if that's your thing</span></li>
+        <li data-c><span class="box"></span><span>Close the door, or move somewhere you won't be interrupted</span></li>
+        <li data-c><span class="box"></span><span>One slow breath — then begin</span></li>
       </ul>
       <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">← Back</button><button class="btn primary" onclick="primeStep(3)">Next →</button></div>
     </div>
@@ -309,6 +310,7 @@
       <button data-min="50" class="on">50 min</button>
       <button data-min="90">90 min</button>
     </div>
+    <p class="tiny" id="deep-suggest" style="margin-top:12px"></p>
     <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start block</button></div>
   </div>
 
@@ -501,14 +503,29 @@ function resetTrainUI(){
   $("#train-setup").classList.remove("hide");
   $("#train-run").classList.add("hide");
   $("#train-done").classList.add("hide");
-  var suggest=suggestTrain();
-  $("#train-suggest").innerHTML=suggest;
+  var s=suggestTrain();
+  $("#train-suggest").innerHTML=s.html;
+  train.dur=s.min;
+  $$("#train-dur button").forEach(function(x){ x.classList.toggle("on", +x.dataset.min===s.min); });
 }
+function avgArr(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.length : 0; }
+function nextTier(v,t){ for(var i=0;i<t.length;i++){ if(t[i]>v) return t[i]; } return t[t.length-1]; }
+function nearestTier(v,t){ var best=t[0],bd=Infinity; t.forEach(function(x){var d=Math.abs(x-v);if(d<bd){bd=d;best=x;}}); return best; }
 function suggestTrain(){
-  if(!state.trains.length) return "First session — start with 5 minutes. Consistency beats length.";
-  var lastMin=state.trains[state.trains.length-1].min;
-  var next=Math.min(20,lastMin+ (lastMin>=10?5:2));
-  return "Last time you did <b>"+lastMin+" min</b>. Progressive overload: try <b>"+next+" min</b> today when you're ready.";
+  var T=state.trains, TIERS=[3,5,10,15,20];
+  if(!T.length) return {min:5, html:"First session — start with <b>5 min</b>. Consistency beats length."};
+  var mins=T.map(function(t){return t.min;});
+  var base=Math.max.apply(null, mins.slice(-5));
+  var cpms=T.map(function(t){return t.cpm;});
+  var half=Math.max(1,Math.floor(cpms.length/2));
+  var early=avgArr(cpms.slice(0,half)), late=avgArr(cpms.slice(-half));
+  var enough=T.length>=4;
+  var improving=enough && late<=early*0.9;
+  var worse=enough && late>early*1.15;
+  var rec=worse? base : nextTier(base,TIERS);
+  var trend=!enough? "You're building a baseline" : (improving? "Your catches/min is trending down — fewer wanders" : (worse? "Catches/min ticked up — more wandering lately" : "Your catches/min is holding steady"));
+  var move=rec>base? ("step up to <b>"+rec+" min</b>") : ("hold at <b>"+base+" min</b>");
+  return {min:rec, html:trend+" across your <b>"+T.length+"</b> sessions. You've reached <b>"+base+" min</b> — today, "+move+"."};
 }
 $$("#train-dur button").forEach(function(b){ b.addEventListener("click",function(){ $$("#train-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); train.dur=+b.dataset.min; }); });
 function trainStart(){
@@ -569,8 +586,24 @@ function resetDeepUI(){
   var f=($("#in-first")&&$("#in-first").value.trim())||"";
   $("#deep-outcome").textContent=o||"(no intention set — you can still focus)";
   $("#deep-first").textContent=f?("First action: "+f):"";
+  var s=suggestDeep();
+  deep.min=s.min;
+  $("#deep-suggest").innerHTML=s.html;
+  $$("#deep-dur button").forEach(function(x){ x.classList.toggle("on", +x.dataset.min===s.min); });
 }
 $$("#deep-dur button").forEach(function(b){ b.addEventListener("click",function(){ $$("#deep-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.min=+b.dataset.min; }); });
+function suggestDeep(){
+  var D=state.deep, TIERS=[25,50,90];
+  if(!D.length) return {min:50, html:"First block — start with <b>50 min</b>. Go longer when it feels easy."};
+  var mins=D.map(function(x){return x.min;});
+  var base=nearestTier(avgArr(mins.slice(-5)), TIERS);
+  var atBase=mins.slice(-5).filter(function(m){return m>=base;}).length;
+  var ratings=D.map(function(x){return x.rating;}).filter(function(r){return r;});
+  var good=ratings.length? avgArr(ratings.slice(-5))>=4 : true;
+  var rec=(atBase>=3 && good)? nextTier(base,TIERS) : base;
+  var msg=rec>base? ("Across <b>"+D.length+"</b> blocks you've settled at <b>"+base+" min</b> and they're going well — step up to <b>"+rec+" min</b> today.") : ("Across <b>"+D.length+"</b> blocks you've settled around <b>"+base+" min</b>. Today: <b>"+rec+" min</b> — go longer when it feels easy.");
+  return {min:rec, html:msg};
+}
 function deepStart(){
   clearInterval(deep.int);   // never stack timers
   deep.left=deep.min*60; deep.parks=[]; deep.rating=0; deep.mid=false; deep.running=true;
@@ -589,7 +622,8 @@ function park(){
   var v=$("#park-in").value.trim(); if(!v) return;
   deep.parks.push(v); $("#park-in").value="";
   var li=document.createElement("li"); li.textContent=v; $("#parklist").appendChild(li);
-  toast("Parked. It'll be waiting after the block.");
+  toast("Sent to your schedule's impulse list.");
+  try{ fetch("https://my-schedule-a0ded-default-rtdb.firebaseio.com/impulses.json",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:v})}).catch(function(){}); }catch(e){}
 }
 function deepStop(early){
   if(!deep.running) return;   // guard against re-entry / orphaned ticks
@@ -598,7 +632,7 @@ function deepStop(early){
   deep.actual= early? Math.max(1,done): deep.min;
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.remove("hide");
   chime(440,1.2);
-  $("#park-recall").innerHTML = deep.parks.length? ("You parked "+deep.parks.length+" thing"+(deep.parks.length>1?"s":"")+": "+deep.parks.map(function(p){return "“"+p+"”";}).join(", ")+". Deal with them now if they still matter.") : "Nothing pulled you away — clean block.";
+  $("#park-recall").innerHTML = deep.parks.length? ("You parked "+deep.parks.length+" thing"+(deep.parks.length>1?"s":"")+": "+deep.parks.map(function(p){return "“"+p+"”";}).join(", ")+". They're in your schedule's impulse list now.") : "Nothing pulled you away — clean block.";
 }
 $$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; }); });
 function deepSave(){
@@ -609,24 +643,14 @@ function deepSave(){
 
 /* ================= PROGRESS ================= */
 function renderProgress(){
-  $("#p-sessions").textContent=state.trains.length+state.deep.length;
-  var total=0; state.deep.forEach(function(d){total+=d.min;}); state.trains.forEach(function(d){total+=d.min;});
-  $("#p-minutes").textContent=total;
-  $("#p-streak").textContent=streak();
-  $("#p-chart-min").innerHTML = barChart(last14Minutes());
+  $("#p-chart-min").innerHTML = state.deep.length? barChart(deepSeries()) : emptyBox("No deep-work blocks yet.");
   var cpm=state.trains.map(function(t){return t.cpm;});
   $("#p-chart-cpm").innerHTML = cpm.length? lineChart(cpm,{min:0,max:Math.max(3,Math.ceil(Math.max.apply(null,cpm))),accent:"var(--violet)"}) : emptyBox("No training sessions yet.");
 }
-function last14Minutes(){
-  var out=[], lbls=[];
-  for(var i=13;i>=0;i--){
-    var d=new Date(); d.setDate(d.getDate()-i); var iso=d.toISOString().slice(0,10);
-    var m=0;
-    state.deep.forEach(function(x){ if(new Date(x.t).toISOString().slice(0,10)===iso) m+=x.min; });
-    state.trains.forEach(function(x){ if(new Date(x.t).toISOString().slice(0,10)===iso) m+=x.min; });
-    out.push(m); lbls.push(d.toLocaleDateString(undefined,{weekday:"narrow"}));
-  }
-  return {vals:out,lbls:lbls};
+function deepSeries(){
+  var vals=[], lbls=[];
+  state.deep.forEach(function(x){ vals.push(x.min); lbls.push(new Date(x.t).toLocaleDateString(undefined,{month:"numeric",day:"numeric"})); });
+  return {vals:vals,lbls:lbls};
 }
 
 /* ---- charts (inline SVG) ---- */
@@ -655,7 +679,7 @@ function lineChart(vals,opt){
 }
 function barChart(data){
   var vals=data.vals, lbls=data.lbls;
-  if(!vals.some(function(v){return v>0;})) return emptyBox("No focus minutes logged in the last 14 days.");
+  if(!vals.some(function(v){return v>0;})) return emptyBox("No data yet.");
   var W=680,H=180,pad=28,pl=38;
   var max=Math.max.apply(null,vals); if(max<=0) max=1;
   var n=vals.length, bw=(W-pl-pad)/n*0.62, gap=(W-pl-pad)/n;
