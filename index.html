@@ -186,10 +186,19 @@
   .restlist.do li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
   .restlist.no li{color:var(--mut)}
   .restlist.no li::before{content:"✕";position:absolute;left:0;color:var(--rose);font-weight:800}
-  .spectrum{display:flex;gap:6px}
-  .spectrum button{flex:1;padding:15px 0;border:1px solid var(--line);border-radius:6px;font-weight:800;font-size:17px;cursor:pointer;color:var(--tx);background:#fff;transition:.12s}
-  .spectrum button:hover{border-color:var(--mut)}
-  .spectrum button.on{background:var(--acc);color:#fff;border-color:var(--acc);transform:scale(1.12);z-index:1;box-shadow:0 6px 18px rgba(43,51,60,.22)}
+  .spectrum{display:flex;gap:5px}
+  .spectrum button{flex:1;padding:16px 0;border:1px solid rgba(43,51,60,.08);border-radius:7px;font-weight:800;font-size:15px;cursor:pointer;color:var(--tx);transition:.12s}
+  .spectrum button[data-r="1"]{background:#f6f4ee}
+  .spectrum button[data-r="2"]{background:#ece9df}
+  .spectrum button[data-r="3"]{background:#dfddd3}
+  .spectrum button[data-r="4"]{background:#cdcfca}
+  .spectrum button[data-r="5"]{background:#b6bcbb}
+  .spectrum button[data-r="6"]{background:#9ea6a8;color:#fff}
+  .spectrum button[data-r="7"]{background:#838d93;color:#fff}
+  .spectrum button[data-r="8"]{background:#66707b;color:#fff}
+  .spectrum button[data-r="9"]{background:#495260;color:#fff}
+  .spectrum button[data-r="10"]{background:#2b333c;color:#fff}
+  .spectrum button.on{transform:scale(1.18);z-index:1;box-shadow:0 8px 20px rgba(43,51,60,.3)}
 </style>
 </head>
 <body>
@@ -205,11 +214,12 @@
 
 <!-- ============ HOME ============ -->
 <section class="screen on" id="s-home">
-  <div class="card" style="margin-top:20px">
-    <div class="row">
-      <button class="btn primary lg" data-go="prime">Start</button>
-    </div>
+  <div class="card" style="margin-top:20px;text-align:center;padding:46px 24px">
+    <div class="muted" id="home-greet" style="font-size:16px;margin-bottom:24px"></div>
+    <button class="btn primary" data-go="prime" style="font-size:18px;padding:18px 64px;letter-spacing:1px">Start</button>
   </div>
+
+  <div id="progress-wrap">
 
     <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
   <div class="card"><h3>Meta-awareness</h3><div id="p-chart-meta"></div></div>
@@ -220,6 +230,7 @@
       <input type="text" id="reset-word" placeholder="HONE" style="max-width:200px;text-align:center;display:inline-block;width:auto" onkeydown="if(event.key==='Enter')confirmReset()">
       <button class="btn danger" onclick="confirmReset()" style="margin-left:8px">Wipe</button>
     </div>
+  </div>
   </div>
 </section>
 
@@ -322,9 +333,9 @@
     <h2>Block complete</h2>
     <p class="muted" id="deep-done-caught" style="font-size:14px"></p>
     <p class="muted">How focused did that feel?</p>
-    <div style="max-width:440px;margin:14px auto 0">
+    <div style="max-width:520px;margin:14px auto 0">
       <div class="spectrum" id="rate">
-        <button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button>
+        <button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button><button data-r="6">6</button><button data-r="7">7</button><button data-r="8">8</button><button data-r="9">9</button><button data-r="10">10</button>
       </div>
       <div class="row spread" style="margin-top:7px"><span class="tiny">← Scattered</span><span class="tiny">Locked in →</span></div>
       <div class="muted" id="rate-label" style="margin-top:12px;font-size:15px;font-weight:700;min-height:20px"></div>
@@ -446,7 +457,7 @@ function chime(freq,dur){
 function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; return (m<10?"0":"")+m+":"+(r<10?"0":"")+r; }
 
 /* ================= HOME ================= */
-function renderHome(){ renderProgress(); }
+function renderHome(){ renderProgress(); var g=$("#home-greet"); if(g) g.textContent=greet(); }
 function greet(){ var h=new Date().getHours(); var g=h<12?"Good morning.":h<18?"Good afternoon.":"Good evening."; return g+" Time to go deep."; }
 function minutesLast(n){
   var cut=new Date(); cut.setDate(cut.getDate()-n);
@@ -581,7 +592,7 @@ function suggestDeep(){
     var recent=D.slice(-5), mins=recent.map(function(x){return x.min;});
     var base=Math.max.apply(null,mins);
     var ratings=recent.map(function(x){return x.rating;}).filter(function(r){return r;});
-    var good=ratings.length? avg(ratings)>=4 : true;   // "hardcore feedback": your honest focus ratings
+    var good=ratings.length? avg(ratings)>=8 : true;   // "hardcore feedback": your honest focus ratings
     var last=D[D.length-1];
     if(good && last.min>=base) rec=Math.min(CAP, base+STEP);   // going well -> deliberate step up
     else if(!good) rec=Math.max(FLOOR, base-STEP);            // rated low -> ease back
@@ -639,8 +650,8 @@ function deepStop(early){
   showCaught();
   impulseKeys().then(function(keys){ if(keys) keys.forEach(function(k){ if(!deep.impKnown[k]){ deep.impKnown[k]=1; deep.catches++; } }); showCaught(); });  // final sweep so a just-caught urge isn't missed
 }
-var RATE_LABELS={1:"Scattered",2:"Distracted",3:"Steady",4:"Focused",5:"Locked in"};
-$$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; var rl=$("#rate-label"); if(rl) rl.textContent=deep.rating+" · "+RATE_LABELS[deep.rating]; }); });
+function rateLabel(r){ return r<=2?"Scattered":r<=4?"Distracted":r<=6?"Steady":r<=8?"Focused":"Locked in"; }
+$$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; var rl=$("#rate-label"); if(rl) rl.textContent=deep.rating+" · "+rateLabel(deep.rating); }); });
 var restTimer=0;
 function startRestore(){
   clearInterval(restTimer);
@@ -663,8 +674,10 @@ function deepSave(){
 
 /* ================= PROGRESS ================= */
 function renderProgress(){
-  $("#p-chart-min").innerHTML = state.deep.length? dayChart(deepSeries(),{accent:"var(--acc)",fill:true,id:"min"}) : emptyBox();
-  $("#p-chart-meta").innerHTML = state.deep.length? dayChart(metaSeries(),{accent:"var(--violet)",fill:false,id:"meta"}) : emptyBox();
+  var has=state.deep.length, pw=$("#progress-wrap"); if(pw) pw.classList.toggle("hide", !has);
+  if(!has) return;
+  $("#p-chart-min").innerHTML = dayChart(deepSeries(),{accent:"var(--acc)",fill:true,id:"min"});
+  $("#p-chart-meta").innerHTML = dayChart(metaSeries(),{accent:"var(--violet)",fill:false,id:"meta"});
 }
 function metaSeries(){
   var byDay={}, order=[];
