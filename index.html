@@ -178,6 +178,17 @@
   .restlist.do li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
   .restlist.no li{color:var(--mut)}
   .restlist.no li::before{content:"✕";position:absolute;left:0;color:var(--rose);font-weight:800}
+  #train-run.eyes .breathwrap, #train-run.eyes .ringtimer{display:none}
+  #train-run.eyes #catchbtn{min-height:46vh;font-size:24px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  #train-run.eyes #train-eyes-msg{display:block!important}
+  .spectrum{display:flex;gap:6px}
+  .spectrum button{flex:1;padding:15px 0;border:1px solid var(--line);border-radius:6px;font-weight:800;font-size:17px;cursor:pointer;color:var(--tx);transition:.12s}
+  .spectrum button[data-r="1"]{background:#f6f4ee}
+  .spectrum button[data-r="2"]{background:#e6e4dc}
+  .spectrum button[data-r="3"]{background:#c6c8cc}
+  .spectrum button[data-r="4"]{background:#8a9099;color:#fff}
+  .spectrum button[data-r="5"]{background:#2b333c;color:#fff}
+  .spectrum button.on{box-shadow:0 0 0 3px var(--green);z-index:1;transform:translateY(-2px)}
 </style>
 </head>
 <body>
@@ -193,14 +204,14 @@
 <section class="screen on" id="s-home">
   <div class="card" style="margin-top:20px">
     <div class="row">
-      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button>
+      <button class="btn primary lg" data-go="prime" style="text-transform:uppercase;letter-spacing:1px">Start</button><button class="btn lg" data-go="train" style="text-transform:uppercase;letter-spacing:1px">Train</button>
     </div>
   </div>
 
     <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
   <div class="card"><h3>Meta‑awareness</h3><div id="p-chart-cpm"></div></div>
   <div style="text-align:center;margin-top:8px">
-    <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">Reset all data</button>
+    <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">RESET ALL DATA</button>
     <div id="reset-confirm" class="hide" style="margin-top:12px">
       <div class="tiny" style="margin-bottom:6px">Type <b>HONE</b> to confirm — this can't be undone.</div>
       <input type="text" id="reset-word" placeholder="HONE" style="max-width:200px;text-align:center;display:inline-block;width:auto" onkeydown="if(event.key==='Enter')confirmReset()">
@@ -289,7 +300,7 @@
           <div id="move-note" class="hide"><p class="tiny" style="text-align:center;margin-top:2px">Even better for a flat state: a brisk 2–5 min walk or jumping jacks, then start.</p></div>
         </div>
       </div>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">← Back</button><button class="btn primary" onclick="primeDone()">Train</button></div>
+      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(2)">← Back</button><button class="btn primary" onclick="primeDone()">Continue →</button></div>
     </div>
   </div>
 </section>
@@ -306,12 +317,13 @@
       <button data-min="15">15 min</button>
       <button data-min="20">20 min</button>
     </div>
-    <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="trainStart()">Begin</button><label class="chip" style="cursor:pointer"><input type="checkbox" id="train-sound" checked style="width:auto;accent-color:var(--acc)"> chime</label></div>
+    <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="trainStart()">Begin</button><label class="chip" style="cursor:pointer"><input type="checkbox" id="train-sound" checked style="width:auto;accent-color:var(--acc)"> chime</label><label class="chip" style="cursor:pointer"><input type="checkbox" id="train-eyes" style="width:auto;accent-color:var(--acc)"> eyes closed</label></div>
   </div>
 
   <div class="card hide" id="train-run" style="margin-top:20px;text-align:center">
     <div class="ringtimer" id="train-clock">05:00</div>
     <div class="breathwrap"><div class="orb" id="train-orb" style="width:200px;height:200px;transform:scale(.7)"><div class="phase" id="train-phase" style="font-size:16px">Breathe</div></div></div>
+    <p class="muted" id="train-eyes-msg" style="margin-top:8px;font-size:14px;display:none">Eyes closed. Breathe naturally. Tap the button or press <b>space</b> the moment you catch a wander.</p>
     <button class="catchbtn" id="catchbtn" onclick="doCatch()">Caught it<span class="c" id="catch-c">0 catches — each one is a rep</span></button>
     <div class="row" style="justify-content:center;margin-top:14px"><button class="btn ghost" onclick="trainStop(true)">End early</button></div>
   </div>
@@ -351,37 +363,43 @@
       <div class="tiny">FOCUS ON</div>
       <div id="deep-run-outcome" style="font-size:17px;font-weight:700"></div>
     </div>
-    <div class="row spread" style="margin-top:16px"><button class="btn ghost" onclick="deepStop(true)">End block</button><span class="chip" id="deep-elapsed">0 min in</span></div>
+    <div class="row" style="margin-top:16px"><button class="btn ghost" onclick="deepStop(true)">End block</button></div>
   </div>
 
   <div class="card hide" id="deep-done" style="margin-top:20px;text-align:center">
     <h2>Block complete</h2>
     <p class="muted">How focused did that feel?</p>
-    <div class="rate" id="rate" style="max-width:360px;margin:14px auto 0">
-      <button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button>
+    <div style="max-width:440px;margin:14px auto 0">
+      <div class="spectrum" id="rate">
+        <button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button>
+      </div>
+      <div class="row spread" style="margin-top:7px"><span class="tiny">← Scattered</span><span class="tiny">Locked in →</span></div>
     </div>
-    <div class="tiny" style="margin-top:6px">1 = scattered · 5 = locked in</div>
     <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" onclick="deepSave()">Save &amp; restore →</button></div>
   </div>
 
   <div class="card hide" id="deep-restore" style="margin-top:20px">
     <h2>Restore — don't skip this</h2>
+    <p class="sub">The break isn't idle time — it's when the last block sinks in and your attention refuels. Skip it and the next block starts foggy.</p>
     <div class="grid g2" style="margin-top:14px">
       <div class="stat">
         <div class="k">Do</div>
         <ul class="restlist do">
-          <li>Walk — ideally outside, in daylight</li>
-          <li>Look far away and let your eyes soften</li>
-          <li>A few slow breaths</li>
-          <li>10–20 min NSDR / yoga-nidra for a deep reset</li>
+          <li><b>Get into daylight</b> — sunlight resets alertness and steadies your body clock</li>
+          <li><b>Walk or move</b> — clears the mental fatigue that builds up under focus</li>
+          <li><b>Look far away</b> — a long, soft gaze relaxes the eyes and the mind with them</li>
+          <li><b>A few slow breaths</b> — long exhales bring you down from work tension</li>
+          <li><b>10–20 min NSDR / yoga-nidra</b> — the deepest reset; refills dopamine and clears the last task from your head</li>
+          <li><b>Water, and a real snack if hungry</b> — steady fuel beats a sugar spike and crash</li>
         </ul>
       </div>
       <div class="stat">
         <div class="k">Avoid</div>
         <ul class="restlist no">
-          <li>Feeds, social, news</li>
-          <li>Email and messages</li>
-          <li>Anything that starts a new task in your head</li>
+          <li><b>Feeds, social, news</b> — fast novelty spikes dopamine and leaves the next block flat</li>
+          <li><b>Email and messages</b> — each one opens a loop your mind keeps chewing on</li>
+          <li><b>Starting a new task</b> — its leftover "residue" bleeds straight into your deep work</li>
+          <li><b>Bright screens up close</b> — the opposite of the far, calm gaze your eyes need</li>
         </ul>
       </div>
     </div>
@@ -389,7 +407,7 @@
       <div class="ringtimer" id="rest-clock">05:00</div>
       <div class="tiny" id="rest-label" style="margin-top:4px">The break <b>is</b> the reset — walk, daylight, or NSDR. "Another block" unlocks when it's done.</div>
     </div>
-    <div class="row" style="margin-top:16px"><button class="btn primary" data-go="home">Done for now</button><button class="btn" id="another-block" data-go="deep" disabled>Another block</button></div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" data-go="home">Done</button><button class="btn" id="another-block" data-go="deep" disabled>Another block</button></div>
   </div>
 </section>
 
@@ -573,10 +591,10 @@ function runPhase(orb,phaseEl,cdEl,phases){
   }
   breath.raf=requestAnimationFrame(tick);
 }
-function primeDone(){ stopBreath(); go("train"); }
+function primeDone(){ stopBreath(); go("deep"); }
 
 /* ================= FOCUS TRAINER ================= */
-var train={dur:5,left:0,catches:0,int:0,orbRaf:0,orbIdx:0,running:false};
+var train={dur:5,left:0,catches:0,int:0,orbRaf:0,orbIdx:0,running:false,eyes:false};
 function resetTrainUI(){
   $("#train-setup").classList.remove("hide");
   $("#train-run").classList.add("hide");
@@ -607,12 +625,14 @@ function suggestTrain(){
 $$("#train-dur button").forEach(function(b){ b.addEventListener("click",function(){ $$("#train-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); train.dur=+b.dataset.min; }); });
 function trainStart(){
   clearInterval(train.int); clearTimeout(train.orbTo);   // never stack timers
+  train.eyes = !!($("#train-eyes") && $("#train-eyes").checked);
+  $("#train-run").classList.toggle("eyes", train.eyes);
   train.left=train.dur*60; train.catches=0; train.running=true;
   $("#train-setup").classList.add("hide"); $("#train-run").classList.remove("hide"); $("#train-done").classList.add("hide");
   $("#catch-c").textContent="0 catches — each one is a rep";
   $("#train-clock").textContent=fmt(train.left);
   if($("#train-sound").checked) chime(528,1.2);
-  trainOrb();
+  if(!train.eyes) trainOrb();
   train.int=setInterval(function(){
     train.left--; $("#train-clock").textContent=fmt(train.left);
     if(train.left<=0) trainStop(false);
@@ -635,6 +655,7 @@ function doCatch(){
   train.catches++;
   var b=$("#catchbtn"); b.classList.remove("ping"); void b.offsetWidth; b.classList.add("ping");
   $("#catch-c").textContent=train.catches+" catch"+(train.catches>1?"es":"")+" — nicely noticed";
+  if(train.eyes && $("#train-sound") && $("#train-sound").checked) chime(680,0.12);
 }
 function trainStop(early){
   if(!train.running) return;   // guard: a stopped session can never re-fire the chime
@@ -648,6 +669,8 @@ function trainStop(early){
   $("#train-run").classList.add("hide"); $("#train-done").classList.remove("hide");
   $("#td-min").textContent=Math.round(mins); $("#td-catch").textContent=train.catches; $("#td-cpm").textContent=cpm;
 }
+
+document.addEventListener("keydown",function(e){ if(e.code==="Space" && train.running && $("#s-train") && $("#s-train").classList.contains("on")){ e.preventDefault(); doCatch(); } });
 
 /* ================= DEEP WORK ================= */
 var deep={min:50,left:0,int:0,parks:[],rating:0,mid:false,running:false};
@@ -683,7 +706,6 @@ function deepStart(){
   $("#deep-clock").textContent=fmt(deep.left);
   deep.int=setInterval(function(){
     deep.left--; $("#deep-clock").textContent=fmt(deep.left);
-    var inMin=Math.floor((deep.min*60-deep.left)/60); $("#deep-elapsed").textContent=inMin+" min in";
     if(!deep.mid && deep.left<=deep.min*60/2){ deep.mid=true; toast("Halfway. Re‑read your intention, then keep going — don't switch tasks."); }
     if(deep.left<=0) deepStop(false);
   },1000);
