@@ -250,45 +250,7 @@
       <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="afterResidue()">Next</button></div>
     </div>
 
-    <!-- step 3: arousal + breathing -->
-    <div id="prime-3" class="hide">
-      <h2>Tune your arousal</h2>
-      <div id="arousal-quiz" style="margin-top:16px">
-        <div class="qz" data-q="0">
-          <label class="fl">Your energy right now</label>
-          <div class="seg qopts">
-            <button data-v="2">Wired</button>
-            <button data-v="1">Tense</button>
-            <button data-v="0">Steady</button>
-            <button data-v="-1">Flat</button>
-            <button data-v="-2">Drained</button>
-          </div>
-        </div>
-        <div class="qz" data-q="1" style="margin-top:16px">
-          <label class="fl">Sleep &amp; fuel today</label>
-          <div class="seg qopts">
-            <button data-v="0">Rested, fueled</button>
-            <button data-v="1">So-so</button>
-            <button data-v="2">Running on empty</button>
-          </div>
-        </div>
-      </div>
-      <div id="arousal-result" class="hide" style="margin-top:20px">
-        <p class="muted" id="arousal-verdict" style="text-align:center;font-size:15px"></p>
-        <div id="breath-block">
-          <div class="breathwrap">
-            <div class="orb" id="orb"><div><div class="phase" id="orb-phase">Ready</div><div class="cd" id="orb-cd"></div></div></div>
-          </div>
-          <p class="muted" id="breath-desc" style="text-align:center;font-size:14px"></p>
-          <div class="row" style="justify-content:center;margin-top:12px">
-            <button class="btn primary" id="breath-btn" onclick="toggleBreath()">Begin breathing</button>
-          </div>
-          <p class="tiny" id="breath-why" style="text-align:center;margin-top:10px;max-width:540px;margin-left:auto;margin-right:auto"></p>
-        </div>
-        <div id="move-rec" class="hide" style="text-align:center"><p class="muted" id="move-rec-desc" style="font-size:14px;max-width:540px;margin:4px auto 0"></p></div>
-      </div>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="primeDone()">Continue</button></div>
-    </div>
+
   </div>
 </section>
 
@@ -488,12 +450,11 @@ function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.lengt
 /* ================= PRIME ================= */
 var chosenState=null, dayCap=1, arousalAns={};
 function primeStep(n){
-  [1,2,3].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
-  if(n===3) resetArousal();
+  [1,2].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
 }
 function needResidue(){ return state.residueDay !== today(); }   // clear-your-head once per day, not per block
-function afterIntention(){ if(needResidue()) primeStep(2); else primeStep(3); }
-function afterResidue(){ state.residueDay=today(); save(); primeStep(3); }
+function afterIntention(){ if(needResidue()) primeStep(2); else primeDone(); }
+function afterResidue(){ state.residueDay=today(); save(); primeDone(); }
 $$("#residue li").forEach(function(li){ li.addEventListener("click",function(){ li.classList.toggle("done"); }); });
 
 /* arousal questionnaire -> matched, time-bounded breathing protocol */
