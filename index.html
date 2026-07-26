@@ -95,7 +95,7 @@
   .delta{font-size:12.5px;font-weight:700}
   .up{color:var(--green)} .down{color:var(--rose)} .flat{color:var(--mut)}
 
-  input[type=text],textarea,select{width:100%;background:#fff;border:1px solid var(--line2);color:var(--tx);border-radius:6px;padding:11px 13px;font-size:14.5px;font-family:inherit}
+  input[type=text],input[type=number],textarea,select{width:100%;background:#fff;border:1px solid var(--line2);color:var(--tx);border-radius:6px;padding:11px 13px;font-size:14.5px;font-family:inherit}
   input:focus,textarea:focus{outline:0;border-color:var(--acc)}
   label.fl{display:block;font-size:11px;font-weight:700;color:var(--mut);margin:0 0 6px;text-transform:uppercase;letter-spacing:.6px}
   .field+.field{margin-top:14px}
@@ -236,19 +236,7 @@
       <div class="row" style="margin-top:18px"><button class="btn primary" onclick="afterIntention()">Next</button></div>
     </div>
 
-    <!-- step 2: residue -->
-    <div id="prime-2" class="hide">
-      <h2>Clear the residue</h2>
-      <ul class="check" id="residue" style="margin-top:18px">
-        <li data-c><span class="box"></span><span><b>Phone gone</b> — another room, face down and silenced</span></li>
-        <li data-c><span class="box"></span><span><b>Silence the pings</b> — quit Slack, email &amp; messages; Do Not Disturb on every device</span></li>
-        <li data-c><span class="box"></span><span><b>One screen, one task</b> — close every tab and app you don't need</span></li>
-        <li data-c><span class="box"></span><span><b>Seal the room</b> — door, window, and blinds closed; headphones in</span></li>
-        <li data-c><span class="box"></span><span><b>Clear the space</b> — tidy desk, water and bathroom done, tell anyone nearby you're heads-down</span></li>
-        <li data-c><span class="box"></span><span><b>Empty your head</b> — park the last thing and brain-dump nagging to-dos ("Hey Siri, impulse")</span></li>
-      </ul>
-      <div class="row spread" style="margin-top:18px"><button class="btn ghost" onclick="primeStep(1)">Back</button><button class="btn primary" onclick="afterResidue()">Next</button></div>
-    </div>
+
 
 
   </div>
@@ -264,7 +252,10 @@
       <div class="muted" id="deep-first" style="font-size:14px;margin-top:4px"></div>
     </div>
     <label class="fl" style="margin-top:16px">Block length</label>
-    <div class="durgrid" id="deep-dur"></div>
+    <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px">
+      <input type="number" id="deep-mins" min="1" max="180" step="5" value="25" style="width:130px;font-size:30px;font-weight:800;text-align:center;padding:12px 6px;font-variant-numeric:tabular-nums">
+      <span class="muted" style="font-size:15px;font-weight:600">minutes</span>
+    </div>
     <div class="tiny" id="deep-rec" style="margin-top:10px;color:var(--mut)"></div>
     <label class="chip" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin-top:16px"><input type="checkbox" id="deep-noise" style="width:auto;accent-color:var(--acc)"> Brown noise</label>
     <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start</button></div>
@@ -450,10 +441,10 @@ function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.lengt
 /* ================= PRIME ================= */
 var chosenState=null, dayCap=1, arousalAns={};
 function primeStep(n){
-  [1,2].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
+  [1].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
 }
 function needResidue(){ return state.residueDay !== today(); }   // clear-your-head once per day, not per block
-function afterIntention(){ primeStep(2); }   // clear residue before every block
+function afterIntention(){ primeDone(); }
 function afterResidue(){ state.residueDay=today(); save(); primeDone(); }
 $$("#residue li").forEach(function(li){ li.addEventListener("click",function(){ li.classList.toggle("done"); }); });
 
@@ -566,13 +557,11 @@ function resetDeepUI(){
   $("#deep-first").textContent=f?("First action: "+f):"";
   var rec=suggestDeep().min;
   deep.min=rec;
-  var LADDER=[10,15,20,25,30,35,40,45,50,60,75,90,120];
-  var opts=LADDER.slice(); if(opts.indexOf(rec)<0){ opts.push(rec); opts.sort(function(a,b){return a-b;}); }
-  $("#deep-dur").innerHTML=opts.map(function(v){ return '<button data-min="'+v+'"'+(v===rec?' class="on"':'')+'>'+v+'</button>'; }).join("");
+  if($("#deep-mins")) $("#deep-mins").value=rec;
   var cap=$("#deep-rec"); if(cap) cap.textContent="Recommended: "+rec+" min";
   if($("#deep-noise")) $("#deep-noise").checked=!!state.noise;
 }
-(function(){ var dd=$("#deep-dur"); if(dd) dd.addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return; $$("#deep-dur button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.min=+b.dataset.min; }); })();
+(function(){ var mi=$("#deep-mins"); if(!mi) return; mi.addEventListener("input",function(){ var v=parseInt(mi.value,10); if(!isNaN(v)) deep.min=v; }); mi.addEventListener("change",function(){ var v=parseInt(mi.value,10); if(isNaN(v)||v<1) v=25; v=Math.max(1,Math.min(180,v)); mi.value=v; deep.min=v; }); })();
 function suggestDeep(){
   var D=state.deep, STEP=5, FLOOR=10, CAP=120, rec;
   if(!D.length) rec=25;
@@ -633,6 +622,7 @@ function stopNoise(){ try{ if(noiseSrc){ noiseSrc.stop(); noiseSrc.disconnect();
 (function(){ var n=$("#deep-noise"); if(n) n.addEventListener("change",function(){ state.noise=n.checked; save(); if(deep.running){ n.checked?startNoise():stopNoise(); } }); })();
 function deepStart(){
   clearInterval(deep.int);   // never stack timers
+  deep.min=Math.max(1, Math.min(180, deep.min||25));
   deep.left=deep.min*60; deep.parks=[]; deep.rating=0; deep.mid=false; deep.running=true;
   $("#deep-setup").classList.add("hide"); $("#deep-run").classList.remove("hide");
   $("#deep-run-outcome").textContent=($("#in-outcome")&&$("#in-outcome").value.trim())||"your one task";
