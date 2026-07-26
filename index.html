@@ -312,7 +312,7 @@
     <div id="restore-timer" style="text-align:center;margin-top:18px">
       <div class="ringtimer" id="rest-clock">05:00</div>
     </div>
-    <div class="row" style="margin-top:16px"><button class="btn primary" data-go="home">Done</button><button class="btn" id="another-block" data-go="deep" disabled>Another block</button></div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" onclick="restoreDone()">Done</button><button class="btn" id="another-block" data-go="deep" disabled>Another block</button></div>
   </div>
 </section>
 
@@ -653,6 +653,10 @@ function deepStop(early){
 function rateLabel(r){ return r<=2?"Scattered":r<=4?"Distracted":r<=6?"Steady":r<=8?"Focused":"Locked in"; }
 $$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; var rl=$("#rate-label"); if(rl) rl.textContent=deep.rating+" · "+rateLabel(deep.rating); }); });
 var restTimer=0;
+function restoreDone(){
+  if(breakRunning && !confirm("Your restore break isn't over. Skipping it leaves the next block foggier — leave anyway?")) return;
+  go("home");
+}
 function startRestore(){
   clearInterval(restTimer); breakRunning=true; requestWake();
   var mins=Math.min(20,Math.max(5,Math.round((deep.actual||50)/5)));
