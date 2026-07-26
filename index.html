@@ -453,7 +453,7 @@ function primeStep(n){
   [1,2].forEach(function(i){ $("#prime-"+i).classList.toggle("hide", i!==n); });
 }
 function needResidue(){ return state.residueDay !== today(); }   // clear-your-head once per day, not per block
-function afterIntention(){ if(needResidue()) primeStep(2); else primeDone(); }
+function afterIntention(){ primeStep(2); }   // clear residue before every block
 function afterResidue(){ state.residueDay=today(); save(); primeDone(); }
 $$("#residue li").forEach(function(li){ li.addEventListener("click",function(){ li.classList.toggle("done"); }); });
 
