@@ -199,6 +199,12 @@
   .spectrum button.on{transform:scale(1.18);z-index:1;box-shadow:0 8px 20px rgba(43,51,60,.3)}
 #catch-btn{transition:transform .12s ease,opacity .12s ease}
 #catch-btn.pulse{transform:scale(.96);opacity:.65}
+  #catch-note{background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:11px 16px}
+  #catch-note:focus{outline:none;border-color:var(--violet);background:#fff}
+  #catch-note::placeholder{color:var(--mut2)}
+  #deep-caught .cpill{display:inline-flex;align-items:center;gap:7px;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-size:13px;color:var(--mut);font-weight:600;animation:cbump .2s ease}
+  #deep-caught .cnt-n{font-size:15px;font-weight:800;color:var(--acc);font-variant-numeric:tabular-nums;min-width:10px;text-align:center}
+  @keyframes cbump{0%{transform:scale(.92)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
 #catch-btn:active{transform:scale(.98)}
 </style>
 </head>
@@ -259,10 +265,10 @@
 
   <div class="card hide" id="deep-run" style="margin-top:20px">
     <div class="ringtimer" id="deep-clock">25:00</div>
-    <button type="button" id="catch-btn" onclick="catchUrge()" class="btn" style="width:100%;margin-top:20px;padding:20px;font-size:16px;font-weight:800;letter-spacing:.5px">CAUGHT AN URGE</button>
-    <div class="tiny" id="deep-caught" style="text-align:center;margin-top:10px;color:var(--mut)">0 urges caught</div>
-    <div class="tiny" style="text-align:center;margin-top:4px;color:var(--mut2)">Tap the moment you feel the pull to switch — or press <b>C</b></div>
-    <button type="button" id="pip-btn" onclick="openPip()" class="btn hide" style="width:100%;margin-top:14px;padding:12px;font-size:13px;font-weight:700">⤢  Float on top — catch from any app</button>
+    <button type="button" id="catch-btn" onclick="catchFromField()" class="btn" style="width:100%;margin-top:20px;padding:20px;font-size:16px;font-weight:800;letter-spacing:.5px">CAUGHT A DISTRACTION</button>
+    <input type="text" id="catch-note" autocomplete="off" placeholder="name it (optional)" onkeydown="if(event.key==='Enter'){event.preventDefault();catchFromField();}" style="width:100%;margin-top:14px;text-align:center;font-size:14px">
+    <div id="deep-caught" style="text-align:center;margin-top:16px"><span class="cpill"><span class="cnt-n">0</span><span class="cnt-l">distractions caught</span></span></div>
+    <button type="button" id="pip-btn" onclick="openPip()" class="hide" style="display:block;margin:18px auto 0;padding:4px 8px;background:none;border:none;color:var(--mut);font-size:12.5px;font-weight:600;letter-spacing:.2px;text-transform:none;cursor:pointer">⤢ Float on top</button>
     <div class="row" style="margin-top:18px;justify-content:center"><button class="btn ghost" onclick="deepStop(true)">End block</button></div>
   </div>
 
@@ -285,23 +291,20 @@
       <div class="stat">
         <div class="k">Do</div>
         <ul class="restlist do">
-          <li><b>Leave the work room</b> — you must step out of where you work, every break</li>
-          <li><b>Get into daylight</b> — sunlight resets alertness and steadies your body clock</li>
-          <li><b>Walk, no phone</b> — clears the mental fatigue that builds up under focus</li>
-          <li><b>Stretch or move</b> — a few minutes of stretching or light exercise loosens tight muscles and lifts your energy</li>
-          <li><b>Look far away</b> — a long, soft gaze relaxes the eyes and the mind with them</li>
-          <li><b>A few slow breaths</b> — long exhales bring you down from work tension</li>
-          <li><b>10–20 min NSDR / yoga-nidra</b> — the deepest reset; refills dopamine and clears the last task from your head</li>
-          <li><b>Water, and a real snack if hungry</b> — steady fuel beats a sugar spike and crash</li>
+          <li><b>Step outside</b> — daylight resets focus</li>
+          <li><b>Move</b> — walk or stretch, no phone</li>
+          <li><b>Look far away</b> — let your eyes relax</li>
+          <li><b>Slow breaths or NSDR</b> — the deepest reset</li>
+          <li><b>Water + a real snack</b> — steady fuel, no sugar spike</li>
         </ul>
       </div>
       <div class="stat">
         <div class="k">Avoid</div>
         <ul class="restlist no">
-          <li><b>Feeds, social, news</b> — fast novelty spikes dopamine and leaves the next block flat</li>
-          <li><b>Email and messages</b> — each one opens a loop your mind keeps chewing on</li>
-          <li><b>Starting a new task</b> — its leftover "residue" bleeds straight into your deep work</li>
-          <li><b>Bright screens up close</b> — the opposite of the far, calm gaze your eyes need</li>
+          <li><b>Feeds, social, news</b> — cheap dopamine, flat next block</li>
+          <li><b>Email &amp; messages</b> — opens loops you keep chewing on</li>
+          <li><b>A new task</b> — its residue bleeds into your focus</li>
+          <li><b>Bright screens up close</b> — strains the eyes you just rested</li>
         </ul>
       </div>
     </div>
@@ -534,7 +537,7 @@ function runPhase(orb,phaseEl,cdEl,phases){
 }
 
 /* ================= DEEP WORK ================= */
-var deep={min:25,left:0,int:0,parks:[],rating:0,mid:false,running:false,catches:0};
+var deep={min:25,left:0,int:0,parks:[],rating:0,mid:false,running:false,catches:0,impulses:[]};
 function resetDeepUI(){
   $("#deep-setup").classList.remove("hide");
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.add("hide"); $("#deep-restore").classList.add("hide");
@@ -565,14 +568,19 @@ function suggestDeep(){
   return {min:Math.max(FLOOR, Math.min(CAP, Math.round(rec/5)*5))};
 }
 /* meta-awareness rep: notice the pull to switch and log it — a rep, not an interruption. 100% local, no backend. */
-function updateCaught(){ var el=$("#deep-caught"); if(el) el.textContent=deep.catches+(deep.catches===1?" urge caught":" urges caught"); }
-function catchUrge(){
+function updateCaught(){ var el=$("#deep-caught"); if(el) el.innerHTML='<span class="cpill"><span class="cnt-n">'+deep.catches+'</span><span class="cnt-l">'+(deep.catches===1?"distraction caught":"distractions caught")+'</span></span>'; }
+function catchUrge(text){
   if(!deep.running) return;
-  deep.catches++; updateCaught(); updatePip();
+  text=(text||"").toString().trim().slice(0,80);
+  deep.catches++;
+  if(!deep.impulses) deep.impulses=[];
+  deep.impulses.push({t:Date.now(),text:text});
+  updateCaught(); updatePip();
   try{ if(navigator.vibrate) navigator.vibrate(15); }catch(e){}
   var b=$("#catch-btn"); if(b){ b.classList.add("pulse"); setTimeout(function(){ b.classList.remove("pulse"); },170); }
   pipFlash();
 }
+function catchFromField(){ var i=$("#catch-note"); var v=i?i.value:""; if(i) i.value=""; catchUrge(v); }
 document.addEventListener("keydown",function(e){
   if(!deep.running) return;
   var t=e.target||{}, tag=t.tagName||"";
@@ -586,20 +594,21 @@ function pipSupported(){ return ("documentPictureInPicture" in window); }
 function openPip(){
   if(!pipSupported()){ toast("The floating window works in Chrome or Edge."); return; }
   if(pipWin){ try{ pipWin.focus(); }catch(e){} return; }
-  documentPictureInPicture.requestWindow({width:240,height:210}).then(function(w){
+  documentPictureInPicture.requestWindow({width:240,height:250}).then(function(w){
     pipWin=w; var d=w.document;
     var st=d.createElement("style");
-    st.textContent="*{margin:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}html,body{height:100%}body{background:#2b333c;color:#f3f1ea;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:12px;user-select:none;-webkit-user-select:none}#pk{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px}#pb{flex:1;width:100%;border:none;border-radius:12px;background:#f3f1ea;color:#2b333c;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:transform .1s,background .12s}#pb:active,#pb.f{transform:scale(.97);background:#cfe6d8}#pn{font-size:13px;color:#aeb4bb;font-weight:600}";
+    st.textContent="*{margin:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}html,body{height:100%}body{background:#2b333c;color:#f3f1ea;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,2vh,10px);padding:clamp(6px,3vw,12px);overflow:hidden;user-select:none;-webkit-user-select:none}#pk{font-size:clamp(16px,11vw,34px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px}#pb{flex:1 1 auto;min-height:clamp(30px,13vh,90px);width:100%;border:none;border-radius:12px;background:#f3f1ea;color:#2b333c;font-size:clamp(11px,4.2vw,15px);white-space:normal;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:transform .1s,background .12s}#pb:active,#pb.f{transform:scale(.97);background:#cfe6d8}#pi{width:100%;flex:0 0 auto;border:none;border-radius:8px;padding:clamp(5px,1.6vh,8px) 9px;font-size:clamp(11px,4vw,13px);background:#39424d;color:#f3f1ea;text-align:center}#pi::placeholder{color:#8b9098}#pn{font-size:clamp(9px,3.4vw,13px);color:#aeb4bb;font-weight:600}";
     d.head.appendChild(st);
-    d.body.innerHTML='<div id="pk">'+fmt(deep.left)+'</div><button id="pb" type="button">CAUGHT AN URGE</button><div id="pn"></div>';
-    d.getElementById("pb").addEventListener("click",function(ev){ ev.preventDefault(); catchUrge(); });
+    d.body.innerHTML='<div id="pk">'+fmt(deep.left)+'</div><button id="pb" type="button">CAUGHT A DISTRACTION</button><input id="pi" type="text" placeholder="name it (optional)" autocomplete="off"><div id="pn"></div>';
+    d.getElementById("pb").addEventListener("click",function(ev){ ev.preventDefault(); var pi=d.getElementById("pi"); var v=pi?pi.value:""; if(pi) pi.value=""; catchUrge(v); });
+    d.getElementById("pi").addEventListener("keydown",function(ev){ if(ev.key==="Enter"){ ev.preventDefault(); var v=ev.target.value; ev.target.value=""; catchUrge(v); } });
     w.addEventListener("pagehide",function(){ pipWin=null; });
     updatePip();
   }).catch(function(){ toast("Couldn't open the floating window."); });
 }
 function updatePip(){
   if(!pipWin) return;
-  try{ var d=pipWin.document; var k=d.getElementById("pk"); if(k) k.textContent=fmt(deep.left); var n=d.getElementById("pn"); if(n) n.textContent=deep.catches+(deep.catches===1?" urge caught":" urges caught"); }catch(e){}
+  try{ var d=pipWin.document; var k=d.getElementById("pk"); if(k) k.textContent=fmt(deep.left); var n=d.getElementById("pn"); if(n) n.textContent=deep.catches+(deep.catches===1?" distraction caught":" distractions caught"); }catch(e){}
 }
 function pipFlash(){ if(!pipWin) return; try{ var b=pipWin.document.getElementById("pb"); if(b){ b.classList.add("f"); setTimeout(function(){ b.classList.remove("f"); },150); } }catch(e){} }
 function closePip(){ if(pipWin){ try{ pipWin.close(); }catch(e){} pipWin=null; } }
@@ -628,7 +637,7 @@ function deepStart(){
   $("#deep-setup").classList.add("hide"); $("#deep-run").classList.remove("hide");
   $("#deep-clock").textContent=fmt(deep.left);
   showTopbar(); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left);
-  deep.catches=0; updateCaught();
+  deep.catches=0; deep.impulses=[]; var cn=$("#catch-note"); if(cn) cn.value=""; updateCaught();
   var pw=$("#progress-wrap"); if(pw) pw.classList.add("hide");
   requestWake();
   if($("#deep-noise")&&$("#deep-noise").checked) startNoise();
@@ -643,7 +652,15 @@ function deepStop(early){
   deep.running=false; clearInterval(deep.int); hideTopbar(); stopNoise(); closePip();
   var done=Math.round((deep.min*60-deep.left)/60);
   deep.actual= early? Math.max(1,done): deep.min;
-  function showCaught(){ var dc=$("#deep-done-caught"); if(dc) dc.textContent= deep.catches? ("You caught "+deep.catches+" urge"+(deep.catches>1?"s":"")+" to switch — logged, not obeyed.") : ""; }
+  function showCaught(){
+    var dc=$("#deep-done-caught"); if(!dc) return;
+    if(!deep.catches){ dc.textContent=""; return; }
+    var named=(deep.impulses||[]).map(function(x){return x.text;}).filter(Boolean);
+    var m="You caught "+deep.catches+" distraction"+(deep.catches>1?"s":"");
+    if(named.length) m+=" ("+named.join(", ")+")";
+    m+=".";
+    dc.textContent=m;
+  }
   $$("#rate button").forEach(function(x){x.classList.remove("on");}); if($("#rate-label")) $("#rate-label").textContent="";
   $$(".screen").forEach(function(s){s.classList.remove("on");}); if($("#s-deep")) $("#s-deep").classList.add("on"); window.scrollTo({top:0});
   $("#deep-run").classList.add("hide"); $("#deep-done").classList.remove("hide");
@@ -670,7 +687,7 @@ function startRestore(){
   tick(); restTimer=setInterval(tick,1000);
 }
 function deepSave(){
-  state.deep.push({t:Date.now(),min:deep.actual,rating:deep.rating||null,parks:deep.parks.length,catches:deep.catches||0});
+  state.deep.push({t:Date.now(),min:deep.actual,rating:deep.rating||null,parks:deep.parks.length,catches:deep.catches||0,impulses:(deep.impulses||[]).map(function(x){return x.text;}).filter(Boolean)});
   markDay(); save();
   $("#deep-done").classList.add("hide"); $("#deep-restore").classList.remove("hide");
   startRestore();
