@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HONE</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HONE">
+<meta name="theme-color" content="#2b333c">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23ffffff'/><rect x='30' y='27' width='12' height='46' fill='%23000000'/><rect x='58' y='27' width='12' height='46' fill='%23000000'/><rect x='30' y='44' width='40' height='12' fill='%23000000'/></svg>">
+<meta name="theme-color" content="#f3f1ea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HONE">
+<meta name="application-name" content="HONE">
+<style>
+  :root{
+    --bg:#f3f1ea; --bg2:#f6f4ed; --panel:#ffffff; --panel2:#ece9e0;
+    --line:#e6e3da; --line2:#d9d5ca;
+    --tx:#2b333c; --mut:#8b9098; --mut2:#b0b3b8;
+    --acc:#2b333c; --acc2:#4b5563; --violet:#6b6f9a; --amber:#a97b3c; --rose:#c26a5f; --green:#4f8a68;
+    --shadow:0 1px 2px rgba(35,35,30,.05);
+    --r:6px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--tx); -webkit-font-smoothing:antialiased; line-height:1.5;
+    min-height:100%;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 20px 120px}
+  a{color:var(--acc2);text-decoration:none}
+
+  /* Top bar */
+  header{position:sticky;top:0;z-index:50;background:rgba(243,241,234,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .bar{max-width:920px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:14px 20px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:.4px;font-size:16px;color:var(--tx)}
+  .logo .dot{width:11px;height:11px;border-radius:3px;background:var(--acc)}
+  .logo small{font-weight:600;color:var(--mut);letter-spacing:.8px;font-size:10.5px;text-transform:uppercase}
+  nav{margin-left:auto;display:flex;gap:2px;flex-wrap:wrap}
+  nav button{background:transparent;border:0;color:var(--mut);font-weight:600;font-size:13px;padding:7px 12px;border-radius:6px;cursor:pointer;transition:.15s;text-transform:uppercase;letter-spacing:.6px}
+  nav button:hover{color:var(--tx);background:var(--bg2)}
+  nav button.on{color:#fbfaf6;background:var(--acc)}
+
+  .screen{display:none;animation:fade .3s ease}
+  .screen.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+  /* Cards */
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+  .card+.card{margin-top:14px}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:680px){.g2,.g3{grid-template-columns:1fr}}
+
+  h1{font-size:28px;letter-spacing:-.4px;margin-bottom:6px;color:var(--tx);font-weight:700}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:1.3px;margin-bottom:10px;color:var(--tx);font-weight:700}
+  h3{font-size:12.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--mut2);font-weight:700;margin-bottom:14px}
+  p.sub{color:var(--mut);font-size:14.5px}
+  .muted{color:var(--mut)}
+  .tiny{font-size:12.5px;color:var(--mut)}
+  .why{font-size:13px;color:var(--mut);border-left:2px solid var(--line2);padding-left:12px;margin-top:14px}
+  .why b{color:var(--tx)}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font-weight:600;font-size:14px;padding:12px 18px;border-radius:6px;transition:.15s;background:#fff;color:var(--tx);border:1px solid var(--line2);text-transform:uppercase;letter-spacing:.5px}
+  .btn:hover{border-color:var(--mut);background:var(--bg2)}
+  .btn.primary{background:var(--acc);color:#fbfaf6;border:1px solid var(--acc)}
+  .btn.primary:hover{background:#3a434e;border-color:#3a434e}
+  .btn.ghost{background:transparent;border-color:var(--line)}
+  .btn.ghost:hover{background:var(--bg2)}
+  .btn.wide{width:100%}
+  .btn.lg{padding:14px 22px;font-size:15px}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .seg button{text-transform:uppercase;letter-spacing:.3px}
+  .durgrid{display:flex;flex-wrap:wrap;gap:8px}
+  .durgrid button{padding:10px 14px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--tx);font-weight:700;font-size:14px;cursor:pointer;transition:.12s;text-transform:uppercase;letter-spacing:.3px}
+  .durgrid button:hover{border-color:var(--mut)}
+  .durgrid button.on{background:var(--acc);color:#fbfaf6;border-color:var(--acc)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .spread{justify-content:space-between}
+
+  /* Chips / segmented */
+  .seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:3px;gap:3px;flex-wrap:wrap}
+  .seg button{background:transparent;border:0;color:var(--mut);font-weight:600;font-size:13px;padding:8px 14px;border-radius:6px;cursor:pointer;transition:.15s}
+  .seg button.on{background:var(--acc);color:#fbfaf6}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+
+  /* Stat tiles */
+  .stat{background:#fff;border:1px solid var(--line);border-radius:6px;padding:16px}
+  .stat .k{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--mut2);font-weight:700}
+  .stat .v{font-size:32px;font-weight:700;letter-spacing:-1px;margin-top:4px;font-variant-numeric:tabular-nums;color:var(--tx)}
+  .stat .v small{font-size:15px;color:var(--mut);font-weight:600}
+  .delta{font-size:12.5px;font-weight:700}
+  .up{color:var(--green)} .down{color:var(--rose)} .flat{color:var(--mut)}
+
+  input[type=text],input[type=number],textarea,select{width:100%;background:#fff;border:1px solid var(--line2);color:var(--tx);border-radius:6px;padding:11px 13px;font-size:14.5px;font-family:inherit}
+  input[type=number]{-moz-appearance:textfield}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input:focus,textarea:focus{outline:0;border-color:var(--acc)}
+  label.fl{display:block;font-size:11px;font-weight:700;color:var(--mut);margin:0 0 6px;text-transform:uppercase;letter-spacing:.6px}
+  .field+.field{margin-top:14px}
+
+  ul.check{list-style:none;display:grid;gap:9px}
+  ul.check li{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:12px 14px;cursor:pointer;transition:.15s;font-size:14.5px}
+  ul.check li:hover{border-color:var(--line2)}
+  ul.check li .box{width:21px;height:21px;border-radius:5px;border:2px solid var(--line2);flex:0 0 auto;display:grid;place-items:center;transition:.15s}
+  ul.check li.done{border-color:var(--line2);background:var(--bg2)}
+  ul.check li.done .box{background:var(--acc);border-color:var(--acc)}
+  ul.check li.done .box::after{content:"✓";color:#fbfaf6;font-weight:900;font-size:12px}
+  ul.check li.done span{color:var(--mut);text-decoration:line-through}
+
+  /* Reaction test */
+  .stage{height:min(58vh,420px);border-radius:8px;display:grid;place-items:center;text-align:center;cursor:pointer;user-select:none;transition:background .08s;position:relative;overflow:hidden}
+  .stage.wait{background:#fff;border:1px solid var(--line)}
+  .stage.go{background:var(--acc);border:1px solid var(--acc)}
+  .stage.go .num{color:#fbfaf6}
+  .stage.go .hint{color:rgba(255,255,255,.72)}
+  .stage.soon{background:#f7ece8;border:1px solid #eccec7}
+  .stage.soon .big{color:var(--rose)}
+  .stage .num{font-size:60px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-2px;color:var(--tx)}
+  .stage .hint{color:var(--mut);font-size:15px;max-width:340px}
+  .stage .big{font-size:24px;font-weight:800}
+  .dotpulse{width:112px;height:112px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#fdfcf9,#e4e1d8);box-shadow:0 0 40px rgba(255,255,255,.3)}
+
+  /* Breathing */
+  .breathwrap{display:grid;place-items:center;padding:10px 0 4px}
+  .orb{width:220px;height:220px;border-radius:50%;display:grid;place-items:center;position:relative;
+       background:radial-gradient(circle at 42% 38%,#edece4,#f7f6f0);
+       border:1px solid var(--line2);transform:scale(.62);transition:transform linear}
+  .orb::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:1px solid rgba(43,51,60,.16)}
+  .orb .phase{font-size:19px;font-weight:700;letter-spacing:.3px;color:var(--tx)}
+  .orb .cd{font-size:13px;color:var(--mut);margin-top:2px;font-variant-numeric:tabular-nums}
+
+  .ringtimer{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-1px;text-align:center;color:var(--tx)}
+
+  /* Deep work */
+  .parklist{list-style:none;display:grid;gap:8px;margin-top:10px;max-height:170px;overflow:auto}
+  .parklist li{background:#fff;border:1px solid var(--line);border-radius:6px;padding:9px 12px;font-size:14px;color:var(--mut);display:flex;gap:8px;align-items:center}
+  .parklist li::before{content:"⤵";color:var(--mut2)}
+
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--acc);border:1px solid var(--acc);color:#fbfaf6;padding:12px 18px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.15);opacity:0;transition:.25s;z-index:99;font-weight:600;font-size:14px;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+
+  .rate{display:flex;gap:10px}
+  .rate button{flex:1;padding:14px;border-radius:6px;border:1px solid var(--line);background:#fff;color:var(--tx);font-size:19px;font-weight:800;cursor:pointer}
+  .rate button.on{background:var(--acc);color:#fbfaf6;border-color:var(--acc)}
+
+  /* Progress */
+  svg.chart{width:100%;height:auto;display:block;overflow:visible}
+  .axis{stroke:var(--line);stroke-width:1}
+  .gl{stroke:var(--line);stroke-width:1;stroke-dasharray:3 5;opacity:.8}
+  .lbl{fill:var(--mut2);font-size:11px}
+  .empty{color:var(--mut2);text-align:center;padding:40px 10px;font-size:14px;border:1px dashed var(--line2);border-radius:6px}
+
+  /* Science */
+  .evi{border:1px solid var(--line);border-radius:6px;padding:15px 17px;background:#faf9f4}
+  .evi+.evi{margin-top:10px}
+  .evi .t{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:var(--tx)}
+  .tag{font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:5px}
+  .tag.strong{background:rgba(79,138,104,.15);color:#3f7a58}
+  .tag.mod{background:rgba(169,123,60,.16);color:#8a6a30}
+  .tag.opt{background:rgba(107,111,154,.16);color:#5a5e86}
+  .tag.avoid{background:rgba(194,106,95,.15);color:#a5544a}
+  .evi p{font-size:13.5px;color:var(--mut);margin-top:6px}
+
+  .kbd{font-family:ui-monospace,Menlo,monospace;background:var(--bg2);border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:2px 7px;font-size:12px;color:var(--tx)}
+  .stepdots{display:flex;gap:6px;margin-bottom:18px}
+  .stepdots i{height:3px;flex:1;border-radius:3px;background:var(--line)}
+  .stepdots i.on{background:var(--acc)}
+  .hide{display:none!important}
+  footer{color:var(--mut2);font-size:12px;text-align:center;padding:30px 0 10px}
+  .qz label.fl{margin-bottom:6px}
+  .qopts{display:flex;width:100%;gap:4px}
+  .qopts button{flex:1;padding-left:8px;padding-right:8px}
+  .restlist{list-style:none;margin-top:10px;display:grid;gap:7px}
+  .restlist li{font-size:14px;padding-left:22px;position:relative;line-height:1.4}
+  .restlist.do li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:800}
+  .restlist.no li{color:var(--mut)}
+  .restlist.no li::before{content:"✕";position:absolute;left:0;color:var(--rose);font-weight:800}
+  .spectrum{display:flex;gap:5px}
+  .spectrum button{flex:1;padding:16px 0;border:1px solid rgba(43,51,60,.08);border-radius:7px;font-weight:800;font-size:15px;cursor:pointer;color:var(--tx);transition:.12s}
+  .spectrum button[data-r="1"]{background:#f6f4ee}
+  .spectrum button[data-r="2"]{background:#ece9df}
+  .spectrum button[data-r="3"]{background:#dfddd3}
+  .spectrum button[data-r="4"]{background:#cdcfca}
+  .spectrum button[data-r="5"]{background:#b6bcbb}
+  .spectrum button[data-r="6"]{background:#9ea6a8;color:#fff}
+  .spectrum button[data-r="7"]{background:#838d93;color:#fff}
+  .spectrum button[data-r="8"]{background:#66707b;color:#fff}
+  .spectrum button[data-r="9"]{background:#495260;color:#fff}
+  .spectrum button[data-r="10"]{background:#2b333c;color:#fff}
+  .spectrum button.on{transform:scale(1.18);z-index:1;box-shadow:0 8px 20px rgba(43,51,60,.3)}
+#catch-btn{transition:transform .12s ease,opacity .12s ease}
+#catch-btn.pulse{transform:scale(.96);opacity:.65}
+#catch-btn:active{transform:scale(.98)}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="logo" data-go="deep" style="cursor:pointer"><span class="dot"></span>HONE</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============ DEEP WORK ============ -->
+<section class="screen on" id="s-deep">
+  <div class="card hide" id="deep-setup" style="margin-top:20px">
+    <h2>Deep‑work block</h2>
+    <label class="fl" style="margin-top:16px">Block length</label>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+      <button type="button" class="btn" onclick="bumpMin(-1)" style="font-size:24px;font-weight:800;padding:4px 16px;line-height:1">−</button>
+      <input type="number" id="deep-mins" min="1" max="180" step="1" value="25" style="width:100px;font-size:30px;font-weight:800;text-align:center;padding:12px 6px;font-variant-numeric:tabular-nums">
+      <button type="button" class="btn" onclick="bumpMin(1)" style="font-size:24px;font-weight:800;padding:4px 16px;line-height:1">+</button>
+      <span class="muted" style="font-size:15px;font-weight:600;margin-left:4px">minutes</span>
+    </div>
+    <div class="tiny" id="deep-rec" style="margin-top:10px;color:var(--mut)"></div>
+    <label class="chip" style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin-top:16px"><input type="checkbox" id="deep-noise" style="width:auto;accent-color:var(--acc)"> Brown noise</label>
+    <div class="row" style="margin-top:18px"><button class="btn primary lg" onclick="deepStart()">Start</button></div>
+  </div>
+
+<div id="progress-wrap">
+
+    <div class="card"><h3>Deep‑work minutes</h3><div id="p-chart-min"></div></div>
+  <div class="card"><h3>Meta-awareness</h3><div id="p-chart-meta"></div></div>
+  <div style="text-align:center;margin-top:8px;display:flex;flex-direction:column;align-items:center">
+    <button class="btn ghost" id="reset-btn" onclick="toggleReset()" style="padding:8px 14px;font-size:12.5px;color:var(--mut2)">RESET</button>
+    <div id="reset-confirm" class="hide" style="margin-top:12px">
+      <div class="tiny" style="margin-bottom:6px">Type <b>HONE</b> to confirm</div>
+      <input type="text" id="reset-word" placeholder="HONE" style="max-width:200px;text-align:center;display:inline-block;width:auto" onkeydown="if(event.key==='Enter')confirmReset()">
+      <button class="btn danger" onclick="confirmReset()" style="margin-left:8px">Wipe</button>
+    </div>
+  </div>
+  </div>
+
+  <div class="card hide" id="deep-run" style="margin-top:20px">
+    <div class="ringtimer" id="deep-clock">25:00</div>
+    <button type="button" id="catch-btn" onclick="catchUrge()" class="btn" style="width:100%;margin-top:20px;padding:20px;font-size:16px;font-weight:800;letter-spacing:.5px">CAUGHT AN URGE</button>
+    <div class="tiny" id="deep-caught" style="text-align:center;margin-top:10px;color:var(--mut)">0 urges caught</div>
+    <div class="tiny" style="text-align:center;margin-top:4px;color:var(--mut2)">Tap the moment you feel the pull to switch — or press <b>C</b></div>
+    <div class="row" style="margin-top:18px;justify-content:center"><button class="btn ghost" onclick="deepStop(true)">End block</button></div>
+  </div>
+
+  <div class="card hide" id="deep-done" style="margin-top:20px;text-align:center">
+    <h2>Block complete</h2>
+    <p class="muted" id="deep-done-caught" style="font-size:14px"></p>
+    <p class="muted">How focused did that feel?</p>
+    <div style="max-width:520px;margin:14px auto 0">
+      <div class="spectrum" id="rate">
+        <button data-r="1">1</button><button data-r="2">2</button><button data-r="3">3</button><button data-r="4">4</button><button data-r="5">5</button><button data-r="6">6</button><button data-r="7">7</button><button data-r="8">8</button><button data-r="9">9</button><button data-r="10">10</button>
+      </div>
+      <div class="muted" id="rate-label" style="margin-top:12px;font-size:15px;font-weight:700;min-height:20px"></div>
+    </div>
+    <div class="row" style="justify-content:center;margin-top:18px"><button class="btn primary lg" onclick="deepSave()">Save &amp; restore</button></div>
+  </div>
+
+  <div class="card hide" id="deep-restore" style="margin-top:20px">
+    <h2>Restore</h2>
+    <div class="grid g2" style="margin-top:14px">
+      <div class="stat">
+        <div class="k">Do</div>
+        <ul class="restlist do">
+          <li><b>Leave the work room</b> — you must step out of where you work, every break</li>
+          <li><b>Get into daylight</b> — sunlight resets alertness and steadies your body clock</li>
+          <li><b>Walk, no phone</b> — clears the mental fatigue that builds up under focus</li>
+          <li><b>Stretch or move</b> — a few minutes of stretching or light exercise loosens tight muscles and lifts your energy</li>
+          <li><b>Look far away</b> — a long, soft gaze relaxes the eyes and the mind with them</li>
+          <li><b>A few slow breaths</b> — long exhales bring you down from work tension</li>
+          <li><b>10–20 min NSDR / yoga-nidra</b> — the deepest reset; refills dopamine and clears the last task from your head</li>
+          <li><b>Water, and a real snack if hungry</b> — steady fuel beats a sugar spike and crash</li>
+        </ul>
+      </div>
+      <div class="stat">
+        <div class="k">Avoid</div>
+        <ul class="restlist no">
+          <li><b>Feeds, social, news</b> — fast novelty spikes dopamine and leaves the next block flat</li>
+          <li><b>Email and messages</b> — each one opens a loop your mind keeps chewing on</li>
+          <li><b>Starting a new task</b> — its leftover "residue" bleeds straight into your deep work</li>
+          <li><b>Bright screens up close</b> — the opposite of the far, calm gaze your eyes need</li>
+        </ul>
+      </div>
+    </div>
+    <div id="restore-timer" style="text-align:center;margin-top:18px">
+      <div class="ringtimer" id="rest-clock">05:00</div>
+    </div>
+    <div class="row" style="margin-top:16px"><button class="btn primary" onclick="restoreDone()">Done</button><button class="btn" id="another-block" data-go="deep" disabled>Another block</button></div>
+  </div>
+</section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ---------------- state + persistence ---------------- */
+var KEY="hone_v1";
+var state=load();
+function load(){
+  try{var r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){}
+  return {tests:[],trains:[],deep:[],days:[]};
+}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){} }
+function today(){ return new Date().toISOString().slice(0,10); }
+function markDay(){ var d=today(); if(state.days.indexOf(d)<0){state.days.push(d);} }
+function streak(){
+  if(!state.days.length) return 0;
+  var set={}; state.days.forEach(function(d){set[d]=1;});
+  var n=0, cur=new Date();
+  for(;;){
+    var iso=cur.toISOString().slice(0,10);
+    if(set[iso]){ n++; cur.setDate(cur.getDate()-1); }
+    else if(n===0 && iso===today()){ cur.setDate(cur.getDate()-1); } // today not done yet, keep counting back
+    else break;
+  }
+  return n;
+}
+
+/* ---------------- router ---------------- */
+var $=function(s){return document.querySelector(s);};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
+function go(id){
+  stopAllTimers();
+  $$(".screen").forEach(function(s){s.classList.remove("on");});
+  var el=$("#s-"+id); if(el) el.classList.add("on");
+  $$("#nav button").forEach(function(b){b.classList.toggle("on", b.dataset.go===id);});
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(id==="deep"){ if(deep.running){ $("#deep-setup").classList.add("hide"); $("#deep-done").classList.add("hide"); $("#deep-restore").classList.add("hide"); $("#deep-run").classList.remove("hide"); } else resetDeepUI(); }
+}
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-go]"); if(t){ go(t.dataset.go); }
+});
+/* Stop every running timer/sound-trigger. Prevents orphaned countdowns from
+   re-firing the end chime (the "constant chime" bug) and stops stacked intervals. */
+function stopAllTimers(){
+  // deep block intentionally persists across navigation (top bar keeps it visible); only deepStop ends it
+  if(typeof pvt!=="undefined"){ pvt.running=false; clearTimeout(pvt.to); clearTimeout(pvt.leftTo); cancelAnimationFrame(pvt.raf); }
+  if(typeof restTimer!=="undefined") clearInterval(restTimer);
+  if(typeof stopBreath==="function") stopBreath();
+}
+function showTopbar(){}
+function hideTopbar(){}
+var alarmTimers=[];
+function stopAlarm(){ alarmTimers.forEach(function(t){clearTimeout(t);}); alarmTimers=[]; }
+function alarmBeep(freq,dur,vol){
+  try{
+    if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended") AC.resume();
+    var o=AC.createOscillator(), g=AC.createGain();
+    o.type="square"; o.frequency.value=freq;                 // square = harsh/urgent, not calming
+    o.connect(g); g.connect(AC.destination);
+    var t=AC.currentTime;
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(vol,t+0.008);
+    g.gain.setValueAtTime(vol,t+dur-0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.start(t); o.stop(t+dur+0.02);
+  }catch(e){}
+}
+function alarm(){
+  stopAlarm();
+  try{ if(AC && AC.state==="suspended") AC.resume(); }catch(e){}
+  for(var c=0;c<26;c++){                                      // ~31s of loud urgent triple-beeps
+    var base=c*1200;
+    alarmTimers.push(setTimeout(function(){alarmBeep(1245,0.14,0.45);},base));
+    alarmTimers.push(setTimeout(function(){alarmBeep(1245,0.14,0.45);},base+190));
+    alarmTimers.push(setTimeout(function(){alarmBeep(1660,0.16,0.45);},base+380));
+  }
+}
+document.addEventListener("click", stopAlarm);   // any tap back in silences it
+var wakeLock=null, breakRunning=false;
+function requestWake(){ try{ if(navigator.wakeLock) navigator.wakeLock.request("screen").then(function(w){wakeLock=w;}).catch(function(){}); }catch(e){} }
+function releaseWake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock=null; } }catch(e){} }
+document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="visible" && (deep.running||breakRunning)) requestWake(); });
+function notify(body){ try{ if(window.Notification && Notification.permission==="granted") new Notification("HONE",{body:body}); }catch(e){} }
+function askNotify(){ try{ if(window.Notification && Notification.permission==="default") Notification.requestPermission(); }catch(e){} }
+
+/* ---------------- toast ---------------- */
+var toastT;
+function toast(msg){
+  var el=$("#toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(function(){el.classList.remove("show");},2600);
+}
+
+/* ---------------- audio chime ---------------- */
+var AC=null;
+function chime(freq,dur){
+  try{
+    if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+    var o=AC.createOscillator(), g=AC.createGain();
+    o.type="sine"; o.frequency.value=freq||440;
+    o.connect(g); g.connect(AC.destination);
+    var t=AC.currentTime; g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(.18,t+.03);
+    g.gain.exponentialRampToValueAtTime(.0001,t+(dur||1));
+    o.start(t); o.stop(t+(dur||1));
+  }catch(e){}
+}
+function fmt(s){ s=Math.max(0,Math.round(s)); var m=Math.floor(s/60), r=s%60; return (m<10?"0":"")+m+":"+(r<10?"0":"")+r; }
+
+/* ================= HOME ================= */
+function minutesLast(n){
+  var cut=new Date(); cut.setDate(cut.getDate()-n);
+  var m=0;
+  state.deep.forEach(function(d){ if(new Date(d.t)>=cut) m+=d.min; });
+  return m;
+}
+function avg(a){ return a.length? a.reduce(function(x,y){return x+y;},0)/a.length : 0; }
+
+/* ================= PRIME ================= */
+var chosenState=null, dayCap=1, arousalAns={};
+function needResidue(){ return state.residueDay !== today(); }   // clear-your-head once per day, not per block
+$$("#residue li").forEach(function(li){ li.addEventListener("click",function(){ li.classList.toggle("done"); }); });
+
+/* arousal questionnaire -> matched, time-bounded breathing protocol */
+var PROTOCOLS={
+  veryhigh:{ label:"Very wired — let's pull the brake hard.", name:"Cyclic sighing", desc:"Two inhales through the nose, then a long, slow exhale through the mouth.", why:"The physiological sigh is the fastest way to calm an activated system (Balban 2023, Stanford RCT). ~3 min for a clear shift.", minutes:3, phases:[["Inhale",1800],["Inhale a bit more",1000],["Long exhale…",6000]] },
+  high:{ label:"Wired — let's down-shift.", name:"4-7-8 breathing", desc:"In through the nose for 4, hold for 7, out through pursed lips for 8.", why:"A long exhale plus a hold pulls hard on the parasympathetic brake — deep, deliberate calm (Weil).", minutes:3, phases:[["Inhale",4000],["Hold",7000],["Exhale slowly",8000]] },
+  balanced:{ label:"About right — let's lock it in.", name:"Coherent breathing", desc:"Smooth and even: in for 5, out for 5.", why:"~6 breaths a minute peaks heart-rate variability — the signature of the calm-alert middle of the arousal curve.", minutes:1.5, phases:[["Inhale",5000],["Exhale",5000]] },
+  low:{ label:"A bit flat — let's lift you.", name:"Energizing breath", desc:"Brisker, even breathing to raise alertness. Stop if you feel lightheaded.", why:"Faster breathing nudges sympathetic activity up — the opposite lever from calming. A brisk walk works too.", minutes:2, phases:[["Brisk inhale",1200],["Brisk exhale",1200]] },
+  verylow:{ label:"Heavy — let's fire you up.", name:"Bellows breath", desc:"Rapid, active breaths through the nose — short and sharp. Sit down.", why:"Rapid, forceful breathing strongly raises arousal to shake off heaviness. Keep it short, then get daylight or move.", minutes:1.5, phases:[["Quick inhale",700],["Quick exhale",700]] }
+};
+function fmtMin(m){ return (m%1? m.toFixed(1):m)+" min"; }
+function resetArousal(){
+  arousalAns={}; chosenState=null; dayCap=1;
+  $$("#arousal-quiz .qopts button").forEach(function(b){ b.classList.remove("on"); });
+  $("#arousal-result").classList.add("hide");
+  stopBreath();
+}
+$$("#arousal-quiz .qz").forEach(function(qz){
+  var q=qz.dataset.q, opts=[].slice.call(qz.querySelectorAll("button"));
+  opts.forEach(function(b){ b.addEventListener("click",function(){
+    opts.forEach(function(x){x.classList.remove("on");}); b.classList.add("on");
+    arousalAns[q]=+b.dataset.v;
+    if(Object.keys(arousalAns).length===2) scoreArousal();
+  });});
+});
+var MOVE={
+  low:{ label:"A bit flat — move, don't breathe.", rec:"A brisk 2–5 min walk or some light movement lifts a flat state faster than any breathing drill. Get daylight if you can, then start." },
+  verylow:{ label:"Drained — move, don't breathe.", rec:"A brisk walk, a flight of stairs, or a set of jumping jacks beats breathing here. Add daylight, then start." }
+};
+function scoreArousal(){
+  var a=arousalAns[0];
+  chosenState = a>=2?"veryhigh" : (a===1?"high" : (a===0?"balanced" : (a===-1?"low" : "verylow")));
+  dayCap = [1,0.9,0.75][arousalAns[1]] || 1;
+  var kind = chosenState==="balanced" ? "steady" : ((chosenState==="low"||chosenState==="verylow") ? "move" : "breathe");
+  $("#breath-block").classList.toggle("hide", kind!=="breathe");   // breathing only helps over-arousal
+  $("#move-rec").classList.toggle("hide", kind!=="move");          // under-arousal: movement beats breathing
+  if(kind==="steady"){
+    $("#arousal-verdict").innerHTML="<b>Steady — good to go. Start your block.</b>";
+  } else if(kind==="move"){
+    var m=MOVE[chosenState];
+    $("#arousal-verdict").innerHTML="<b>"+m.label+"</b>";
+    $("#move-rec-desc").textContent=m.rec;
+  } else {
+    var p=PROTOCOLS[chosenState];
+    $("#arousal-verdict").innerHTML="<b>"+p.label+"</b>";
+    $("#breath-desc").textContent=p.name+" — "+p.desc;
+    $("#breath-why").textContent=p.why;
+    $("#orb-phase").textContent="Ready"; $("#orb-cd").textContent="";
+    $("#breath-btn").textContent="Begin breathing · "+fmtMin(p.minutes);
+  }
+  $("#arousal-result").classList.remove("hide");
+  stopBreath();
+}
+var breath={on:false,raf:0,to:0,idx:0,scale:0.62,endAt:0,timer:0};
+function toggleBreath(){ breath.on? stopBreath() : startBreath(); }
+function startBreath(){
+  var p=PROTOCOLS[chosenState]; if(!p) return;
+  breath.on=true; breath.idx=0; breath.endAt=performance.now()+p.minutes*60000;
+  $("#breath-btn").textContent="Stop";
+  runPhase($("#orb"),$("#orb-phase"),$("#orb-cd"),p.phases);
+  breathTick();
+}
+function breathTick(){
+  if(!breath.on) return;
+  if(breath.endAt-performance.now()<=0){ breathComplete(); return; }
+  breath.timer=setTimeout(breathTick,250);
+}
+function breathComplete(){
+  breath.on=false; cancelAnimationFrame(breath.raf); clearTimeout(breath.to); clearTimeout(breath.timer);
+  var o=$("#orb"); if(o){o.style.transition="transform 1s ease"; o.style.transform="scale(.8)";}
+  $("#orb-phase").textContent="Primed ✓"; $("#orb-cd").textContent="";
+  $("#breath-desc").textContent="You're at the optimal arousal for deep work — start your block.";
+  var b=$("#breath-btn"); if(b) b.textContent="Done ✓";
+  try{ chime(528,1); }catch(e){}
+}
+function stopBreath(){
+  breath.on=false; cancelAnimationFrame(breath.raf); clearTimeout(breath.to); clearTimeout(breath.timer);
+  var o=$("#orb"); if(o){o.style.transition="transform .6s ease"; o.style.transform="scale(.62)";}
+  var b=$("#breath-btn"); if(b && chosenState){ b.textContent="Begin breathing · "+fmtMin(PROTOCOLS[chosenState].minutes); }
+}
+function runPhase(orb,phaseEl,cdEl,phases){
+  if(!breath.on) return;
+  var ph=phases[breath.idx%phases.length], label=ph[0], dur=ph[1];
+  phaseEl.textContent=label;
+  var grow=/inhale/i.test(label), hold=/hold/i.test(label);
+  orb.style.transition="transform "+(hold?0.2:dur/1000)+"s cubic-bezier(.4,0,.2,1)";
+  if(grow) breath.scale=1.0; else if(!hold) breath.scale=0.62;
+  orb.style.transform="scale("+breath.scale+")";
+  var start=performance.now();
+  function tick(){
+    if(!breath.on) return;
+    var el=performance.now()-start;
+    cdEl.textContent=Math.max(0,Math.ceil((breath.endAt-performance.now())/1000))+"s left";
+    if(el>=dur){ breath.idx++; runPhase(orb,phaseEl,cdEl,phases); }
+    else breath.raf=requestAnimationFrame(tick);
+  }
+  breath.raf=requestAnimationFrame(tick);
+}
+
+/* ================= DEEP WORK ================= */
+var deep={min:25,left:0,int:0,parks:[],rating:0,mid:false,running:false,catches:0};
+function resetDeepUI(){
+  $("#deep-setup").classList.remove("hide");
+  $("#deep-run").classList.add("hide"); $("#deep-done").classList.add("hide"); $("#deep-restore").classList.add("hide");
+  var rec=suggestDeep().min;
+  deep.min=rec;
+  if($("#deep-mins")) $("#deep-mins").value=rec;
+  var cap=$("#deep-rec"); if(cap) cap.textContent="Recommended: "+rec+" min";
+  if($("#deep-noise")) $("#deep-noise").checked=!!state.noise;
+  renderProgress();
+}
+function bumpMin(d){ var mi=$("#deep-mins"); if(!mi) return; var v=(parseInt(mi.value,10)||deep.min||25)+d; v=Math.max(1,Math.min(180,v)); mi.value=v; deep.min=v; }
+(function(){ var mi=$("#deep-mins"); if(!mi) return; mi.addEventListener("input",function(){ var v=parseInt(mi.value,10); if(!isNaN(v)) deep.min=v; }); mi.addEventListener("change",function(){ var v=parseInt(mi.value,10); if(isNaN(v)||v<1) v=25; v=Math.max(1,Math.min(180,v)); mi.value=v; deep.min=v; }); })();
+function suggestDeep(){
+  var D=state.deep, STEP=5, FLOOR=10, CAP=120, rec;
+  if(!D.length) rec=25;
+  else {
+    var recent=D.slice(-5), mins=recent.map(function(x){return x.min;});
+    var base=Math.max.apply(null,mins);
+    var ratings=recent.map(function(x){return x.rating;}).filter(function(r){return r;});
+    var good=ratings.length? avg(ratings)>=8 : true;   // "hardcore feedback": your honest focus ratings
+    var last=D[D.length-1];
+    if(good && last.min>=base) rec=Math.min(CAP, base+STEP);   // going well -> deliberate step up
+    else if(!good) rec=Math.max(FLOOR, base-STEP);            // rated low -> ease back
+    else rec=base;                                            // hold and consolidate
+  }
+  var aMult={veryhigh:0.7, high:0.85, balanced:1, low:0.85, verylow:0.7}[chosenState] || 1;  // arousal
+  rec = rec * Math.min(aMult, dayCap);   // capped by the more limiting of arousal or fuel
+  return {min:Math.max(FLOOR, Math.min(CAP, Math.round(rec/5)*5))};
+}
+/* meta-awareness rep: notice the pull to switch and log it — a rep, not an interruption. 100% local, no backend. */
+function updateCaught(){ var el=$("#deep-caught"); if(el) el.textContent=deep.catches+(deep.catches===1?" urge caught":" urges caught"); }
+function catchUrge(){
+  if(!deep.running) return;
+  deep.catches++; updateCaught();
+  try{ if(navigator.vibrate) navigator.vibrate(15); }catch(e){}
+  var b=$("#catch-btn"); if(b){ b.classList.add("pulse"); setTimeout(function(){ b.classList.remove("pulse"); },170); }
+}
+document.addEventListener("keydown",function(e){
+  if(!deep.running) return;
+  var t=e.target||{}, tag=t.tagName||"";
+  if(tag==="INPUT"||tag==="TEXTAREA"||t.isContentEditable) return;
+  if(e.key==="c"||e.key==="C"){ e.preventDefault(); catchUrge(); }
+});
+var noiseSrc=null;
+function startNoise(){
+  try{
+    if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)();
+    if(AC.state==="suspended") AC.resume();
+    stopNoise();
+    var len=Math.floor(AC.sampleRate*3), buf=AC.createBuffer(1,len,AC.sampleRate), d=buf.getChannelData(0), last=0;
+    for(var i=0;i<len;i++){ var w=Math.random()*2-1; last=(last+0.02*w)/1.02; d[i]=last*3.5; }   // brown = integrated white
+    var src=AC.createBufferSource(); src.buffer=buf; src.loop=true;
+    var lp=AC.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=380;   // cut the highs -> deep rumble
+    var g=AC.createGain(); g.gain.value=0.18;                 // low: just enough to blur distractions
+    src.connect(lp); lp.connect(g); g.connect(AC.destination); src.start();
+    noiseSrc=src;
+  }catch(e){}
+}
+function stopNoise(){ try{ if(noiseSrc){ noiseSrc.stop(); noiseSrc.disconnect(); noiseSrc=null; } }catch(e){} }
+(function(){ var n=$("#deep-noise"); if(n) n.addEventListener("change",function(){ state.noise=n.checked; save(); if(deep.running){ n.checked?startNoise():stopNoise(); } }); })();
+function deepStart(){
+  clearInterval(deep.int);   // never stack timers
+  deep.min=Math.max(1, Math.min(180, deep.min||25));
+  deep.left=deep.min*60; deep.parks=[]; deep.rating=0; deep.mid=false; deep.running=true;
+  $("#deep-setup").classList.add("hide"); $("#deep-run").classList.remove("hide");
+  $("#deep-clock").textContent=fmt(deep.left);
+  showTopbar(); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left);
+  deep.catches=0; updateCaught();
+  var pw=$("#progress-wrap"); if(pw) pw.classList.add("hide");
+  requestWake();
+  if($("#deep-noise")&&$("#deep-noise").checked) startNoise();
+  deep.int=setInterval(function(){
+    deep.left--; $("#deep-clock").textContent=fmt(deep.left); if($("#top-clock")) $("#top-clock").textContent=fmt(deep.left);
+    if(!deep.mid && deep.left<=deep.min*60/2){ deep.mid=true; toast("Halfway. Keep going — don't switch tasks."); }
+    if(deep.left<=0) deepStop(false);
+  },1000);
+}
+function deepStop(early){
+  if(!deep.running) return;   // guard against re-entry / orphaned ticks
+  deep.running=false; clearInterval(deep.int); hideTopbar(); stopNoise();
+  var done=Math.round((deep.min*60-deep.left)/60);
+  deep.actual= early? Math.max(1,done): deep.min;
+  function showCaught(){ var dc=$("#deep-done-caught"); if(dc) dc.textContent= deep.catches? ("You caught "+deep.catches+" urge"+(deep.catches>1?"s":"")+" to switch — logged, not obeyed.") : ""; }
+  $$("#rate button").forEach(function(x){x.classList.remove("on");}); if($("#rate-label")) $("#rate-label").textContent="";
+  $$(".screen").forEach(function(s){s.classList.remove("on");}); if($("#s-deep")) $("#s-deep").classList.add("on"); window.scrollTo({top:0});
+  $("#deep-run").classList.add("hide"); $("#deep-done").classList.remove("hide");
+  chime(440,0.8);
+  showCaught();
+}
+function rateLabel(r){ return r<=2?"Scattered":r<=4?"Distracted":r<=6?"Steady":r<=8?"Focused":"Locked in"; }
+$$("#rate button").forEach(function(b){ b.addEventListener("click",function(){ $$("#rate button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); deep.rating=+b.dataset.r; var rl=$("#rate-label"); if(rl) rl.textContent=deep.rating+" · "+rateLabel(deep.rating); }); });
+var restTimer=0;
+function restoreDone(){
+  if(breakRunning && !confirm("Your restore break isn't over. Skipping it leaves the next block foggier — leave anyway?")) return;
+  breakRunning=false; releaseWake(); go("deep");
+}
+function startRestore(){
+  clearInterval(restTimer); breakRunning=true; requestWake();
+  var mins=Math.min(20,Math.max(5,Math.round((deep.actual||50)/5)));
+  var end=Date.now()+mins*60000;
+  var ab=$("#another-block"); if(ab) ab.disabled=true;
+  function tick(){
+    var left=(end-Date.now())/1000;
+    if(left<=0){ clearInterval(restTimer); if($("#rest-clock"))$("#rest-clock").textContent="00:00"; if($("#rest-label"))$("#rest-label").textContent="Reset complete — go again if you want."; if(ab) ab.disabled=false; breakRunning=false; releaseWake(); return; }
+    if($("#rest-clock"))$("#rest-clock").textContent=fmt(left);
+  }
+  tick(); restTimer=setInterval(tick,1000);
+}
+function deepSave(){
+  state.deep.push({t:Date.now(),min:deep.actual,rating:deep.rating||null,parks:deep.parks.length,catches:deep.catches||0});
+  markDay(); save();
+  $("#deep-done").classList.add("hide"); $("#deep-restore").classList.remove("hide");
+  startRestore();
+}
+
+/* ================= PROGRESS ================= */
+function renderProgress(){
+  var has=state.deep.length, pw=$("#progress-wrap"); if(pw) pw.classList.toggle("hide", !has);
+  if(!has) return;
+  $("#p-chart-min").innerHTML = dayChart(deepSeries(),{accent:"var(--acc)",fill:true,id:"min"});
+  $("#p-chart-meta").innerHTML = dayChart(metaSeries(),{accent:"var(--violet)",fill:false,id:"meta"});
+}
+function metaSeries(){
+  var byDay={}, order=[];
+  state.deep.forEach(function(x){
+    var d=new Date(x.t), key=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    if(!byDay[key]){ byDay[key]={v:0,t:x.t,lbl:d.toLocaleDateString(undefined,{month:"numeric",day:"numeric"})}; order.push(key); }
+    byDay[key].v += (x.catches||0);
+    if(x.t < byDay[key].t) byDay[key].t = x.t;
+  });
+  order.sort(function(a,b){ return byDay[a].t - byDay[b].t; });
+  return { vals: order.map(function(k){return byDay[k].v;}), lbls: order.map(function(k){return byDay[k].lbl;}) };
+}
+function deepSeries(){
+  var byDay={}, order=[];
+  state.deep.forEach(function(x){
+    var d=new Date(x.t), key=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+    if(!byDay[key]){ byDay[key]={min:0,t:x.t,lbl:d.toLocaleDateString(undefined,{month:"numeric",day:"numeric"})}; order.push(key); }
+    byDay[key].min += (x.min||0);
+    if(x.t < byDay[key].t) byDay[key].t = x.t;
+  });
+  order.sort(function(a,b){ return byDay[a].t - byDay[b].t; });
+  return { vals: order.map(function(k){return byDay[k].min;}), lbls: order.map(function(k){return byDay[k].lbl;}) };
+}
+
+/* ---- charts (inline SVG) ---- */
+function emptyBox(){ return '<div class="empty" style="min-height:70px"></div>'; }
+function dayChart(data,opt){
+  opt=opt||{};
+  var vals=data.vals, lbls=data.lbls, n=vals.length;
+  var W=680,H=200,pad=26,pl=40,bottom=H-24;
+  var max=Math.max.apply(null,vals); if(max<=0) max=1; max=Math.ceil(max*1.15)||1;
+  var acc=opt.accent||"var(--acc)";
+  var x=function(i){ return n<=1? pl+(W-pl-pad)/2 : pl+i*(W-pl-pad)/(n-1); };
+  var y=function(v){ return pad+(1-v/max)*(bottom-pad); };
+  var grid="";
+  for(var g=0;g<=2;g++){ var gv=max*g/2, gy=y(gv); grid+='<line class="gl" x1="'+pl+'" y1="'+gy+'" x2="'+(W-pad)+'" y2="'+gy+'"/><text class="lbl" x="'+(pl-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(gv)+'</text>'; }
+  var pts=vals.map(function(v,i){return x(i)+","+y(v);});
+  var fill = (opt.fill && n>1)? '<path d="M'+pts.join(" L")+" L"+x(n-1)+","+bottom+" L"+x(0)+","+bottom+' Z" fill="url(#g_'+opt.id+')"/>' : "";
+  var line = n>1? '<polyline points="'+pts.join(" ")+'" fill="none" stroke="'+acc+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' : "";
+  var dots = vals.map(function(v,i){ return '<circle cx="'+x(i)+'" cy="'+y(v)+'" r="4.5" fill="#fff" stroke="'+acc+'" stroke-width="2.5"/><text class="lbl" x="'+x(i)+'" y="'+(y(v)-10)+'" text-anchor="middle" fill="var(--tx)" font-weight="700">'+v+'</text>'; }).join("");
+  var xl = lbls.map(function(l,i){ return '<text class="lbl" x="'+x(i)+'" y="'+(H-7)+'" text-anchor="middle">'+l+'</text>'; }).join("");
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img"><defs><linearGradient id="g_'+opt.id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+acc+'" stop-opacity=".25"/><stop offset="1" stop-color="'+acc+'" stop-opacity="0"/></linearGradient></defs>'+grid+fill+line+dots+xl+'</svg>';
+}
+function lineChart(vals,opt){
+  opt=opt||{};
+  var W=680,H=180,pad=28, pl=38;
+  var min=opt.min!=null?opt.min:Math.min.apply(null,vals);
+  var max=opt.max!=null?opt.max:Math.max.apply(null,vals);
+  if(max===min) max=min+1;
+  var acc=opt.accent||"var(--acc)";
+  var n=vals.length;
+  var x=function(i){ return pl+(n<=1?0:(i*(W-pl-pad)/(n-1))); };
+  var y=function(v){ return pad+(1-(v-min)/(max-min))*(H-pad*2); };
+  var pts=vals.map(function(v,i){return x(i)+","+y(v);}).join(" ");
+  var area="M"+x(0)+","+y(vals[0])+" L"+pts.split(" ").join(" L")+" L"+x(n-1)+","+(H-pad)+" L"+x(0)+","+(H-pad)+" Z";
+  var grid="";
+  for(var g=0;g<=2;g++){ var gv=min+(max-min)*g/2; var gy=y(gv); grid+='<line class="gl" x1="'+pl+'" y1="'+gy+'" x2="'+(W-pad)+'" y2="'+gy+'"/><text class="lbl" x="'+(pl-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(gv)+'</text>'; }
+  var dots=vals.map(function(v,i){return '<circle cx="'+x(i)+'" cy="'+y(v)+'" r="'+(i===n-1?4.5:3)+'" fill="'+acc+'"/>';}).join("");
+  var lastLabel='<text class="lbl" x="'+x(n-1)+'" y="'+(y(vals[n-1])-10)+'" text-anchor="middle" fill="var(--tx)" font-weight="700">'+Math.round(vals[n-1])+'</text>';
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img">'+
+    '<defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+acc+'" stop-opacity=".22"/><stop offset="1" stop-color="'+acc+'" stop-opacity="0"/></linearGradient></defs>'+
+    grid+'<path d="'+area+'" fill="url(#lg)"/>'+
+    '<polyline points="'+pts+'" fill="none" stroke="'+acc+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+    dots+lastLabel+'</svg>';
+}
+function barChart(data){
+  var vals=data.vals, lbls=data.lbls;
+  if(!vals.some(function(v){return v>0;})) return emptyBox("No data yet.");
+  var W=680,H=180,pad=28,pl=38;
+  var max=Math.max.apply(null,vals); if(max<=0) max=1;
+  var n=vals.length, bw=(W-pl-pad)/n*0.62, gap=(W-pl-pad)/n;
+  var y=function(v){ return pad+(1-v/max)*(H-pad*2); };
+  var grid="";
+  for(var g=0;g<=2;g++){ var gv=max*g/2; var gy=y(gv); grid+='<line class="gl" x1="'+pl+'" y1="'+gy+'" x2="'+(W-pad)+'" y2="'+gy+'"/><text class="lbl" x="'+(pl-8)+'" y="'+(gy+3)+'" text-anchor="end">'+Math.round(gv)+'</text>'; }
+  var bars=vals.map(function(v,i){
+    var bx=pl+i*gap+(gap-bw)/2; var by=y(v); var h=(H-pad)-by;
+    var lab= v>0? '<text class="lbl" x="'+(bx+bw/2)+'" y="'+(by-5)+'" text-anchor="middle" fill="var(--tx)">'+v+'</text>':'';
+    return '<rect x="'+bx+'" y="'+by+'" width="'+bw+'" height="'+Math.max(0,h)+'" rx="4" fill="var(--acc)" opacity="'+(v>0?0.9:0.2)+'"/>'+lab+
+      '<text class="lbl" x="'+(bx+bw/2)+'" y="'+(H-10)+'" text-anchor="middle">'+lbls[i]+'</text>';
+  }).join("");
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img">'+grid+bars+'</svg>';
+}
+
+/* ---- misc ---- */
+function toggleReset(){ var c=$("#reset-confirm"); if(!c) return; c.classList.toggle("hide"); if(!c.classList.contains("hide")){ var w=$("#reset-word"); if(w){ w.value=""; w.focus(); } } }
+function confirmReset(){
+  var w=$("#reset-word"), v=(w&&w.value)||"";      // exact, case-sensitive: only "HONE" wipes
+  if(v!=="HONE"){ toast("Type HONE exactly, in capitals, to confirm."); return; }
+  state={tests:[],trains:[],deep:[],days:[]}; save();
+  var c=$("#reset-confirm"); if(c) c.classList.add("hide");
+  renderProgress(); toast("All data cleared.");
+}
+function wipe(){ if(confirm("Erase all your HONE data on this device?")){ state={tests:[],trains:[],deep:[],days:[]}; save(); renderProgress(); toast("Data cleared."); } }
+
+/* seed friendly first-run */
+resetDeepUI();
+</script>
+</body>
+</html>
